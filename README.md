@@ -93,19 +93,44 @@ Only `src/components/LiveCaptions.tsx` styling was updated.
 | OCR fallback | Tesseract.js |
 | Translation fallback | MyMemory free API |
 
-## Deployment
+## Deployment (Vercel)
 
-1. Clone repo, `npm install`
-2. Set environment variables:
-   ```
-   DATABASE_URL="file:./dev.db"          # or postgresql://... for production
-   OPENAI_API_KEY=sk-...                 # optional — fallbacks work without it
-   ```
-3. `npm run db:setup`
-4. `npm run build && npm start`
-5. Deploy to **Vercel** — add env vars, use **Supabase/Neon/Railway** for managed Postgres in production
+### 1. Push to GitHub
+Connect the repo in [Vercel](https://vercel.com/new).
 
-For PostgreSQL production, change `provider` in `prisma/schema.prisma` to `postgresql` and run `npx prisma db push`.
+### 2. Create a PostgreSQL database
+Use one of:
+- [Neon](https://neon.tech) (free tier)
+- [Supabase](https://supabase.com)
+- Vercel → Storage → Postgres
+
+Copy the **connection string** (`postgresql://…`).
+
+### 3. Set Vercel environment variables
+
+| Variable | Value |
+|----------|--------|
+| `DATABASE_URL` | `postgresql://…` (your Postgres URL) |
+| `OPENAI_API_KEY` | Optional — enables full AI; fallbacks work without it |
+
+Vercel runs `npm run vercel-build`, which:
+- Switches Prisma to PostgreSQL for the build (local SQLite is unchanged in git)
+- Runs `prisma db push` + seed (demo logins & lectures)
+- Builds the Next.js app
+
+### 4. Deploy
+Click Deploy. After build, open the URL and log in with `student/student123` or `teacher/teacher123`.
+
+### Local vs production
+
+| | Local | Vercel |
+|---|--------|--------|
+| Database | SQLite (`file:./dev.db`) | PostgreSQL (`DATABASE_URL`) |
+| Setup | `npm run db:setup` | Automatic on deploy |
+| Build | `npm run build` | `npm run vercel-build` |
+
+For PostgreSQL locally (optional), set `DATABASE_URL` to a Postgres URL and run:
+`node scripts/vercel-build.mjs` — or use `npm run db:setup` after manually changing provider.
 
 ## Known Limitations
 

@@ -36,7 +36,7 @@ export default function RevisionTab() {
 
   if (!fullTranscript) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-slate-400">
+      <div className="flex h-full flex-col items-center justify-center text-app-muted">
         <div className="mb-4 text-5xl">📄</div>
         <p>Record a lecture and generate notes first</p>
       </div>
@@ -45,7 +45,7 @@ export default function RevisionTab() {
 
   if (!structuredNotes) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-slate-400">
+      <div className="flex h-full flex-col items-center justify-center text-app-muted">
         <p>Generate class notes first, then create revision summary</p>
       </div>
     );
@@ -58,7 +58,7 @@ export default function RevisionTab() {
           <button
             onClick={generateRevision}
             disabled={loading}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
           >
             {loading ? "Compressing..." : "Generate Revision Notes"}
           </button>
@@ -66,11 +66,11 @@ export default function RevisionTab() {
       )}
 
       {revisionNotes ? (
-        <div className="prose prose-slate max-w-none flex-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-6">
+        <div className="prose prose-edu max-w-none flex-1 overflow-y-auto rounded-xl border border-app bg-app-card p-6">
           <ReactMarkdown>{revisionNotes}</ReactMarkdown>
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center text-slate-400">
+        <div className="flex flex-1 items-center justify-center text-app-muted">
           <p>Click to create a one-page revision summary</p>
         </div>
       )}

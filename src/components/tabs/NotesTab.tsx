@@ -71,7 +71,7 @@ export default function NotesTab() {
 
   if (!fullTranscript) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-slate-400">
+      <div className="flex h-full flex-col items-center justify-center text-app-muted">
         <div className="mb-4 text-5xl">📝</div>
         <p>Record a lecture first to generate notes</p>
       </div>
@@ -85,7 +85,7 @@ export default function NotesTab() {
           <button
             onClick={generateNotes}
             disabled={loading}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
           >
             {loading ? "Generating..." : "Generate Notes"}
           </button>
@@ -94,7 +94,7 @@ export default function NotesTab() {
           <button
             onClick={simplifyNotes}
             disabled={simplifying}
-            className="rounded-lg border border-primary-300 px-4 py-2 text-sm font-medium text-primary-700 transition hover:bg-primary-50 disabled:opacity-50"
+            className="rounded-lg border border-brand-300 px-4 py-2 text-sm font-medium text-brand-700 transition hover:bg-brand-50 disabled:opacity-50"
           >
             {simplifying ? "Simplifying..." : "Simplify (ELI5)"}
           </button>
@@ -102,7 +102,7 @@ export default function NotesTab() {
         {simplifiedNotes && (
           <button
             onClick={toggleSimplified}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-100"
+            className="rounded-lg border border-app px-4 py-2 text-sm text-app transition hover:bg-app-secondary"
           >
             {showSimplified ? "Show Full Notes" : "Show Simplified"}
           </button>
@@ -110,13 +110,13 @@ export default function NotesTab() {
       </div>
 
       {displayNotes ? (
-        <div className="prose prose-slate max-w-none flex-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-6">
+        <div className="prose prose-edu max-w-none flex-1 overflow-y-auto rounded-xl border border-app bg-app-card p-6">
           <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
             {displayNotes}
           </ReactMarkdown>
         </div>
       ) : (
-        <div className="flex flex-1 items-center justify-center text-slate-400">
+        <div className="flex flex-1 items-center justify-center text-app-muted">
           <p>Click &quot;Generate Notes&quot; to create structured class notes from the transcript</p>
         </div>
       )}

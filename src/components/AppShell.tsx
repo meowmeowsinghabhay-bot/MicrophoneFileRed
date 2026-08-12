@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { APP_NAME } from "@/lib/constants";
+import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AppShell({
@@ -19,28 +19,22 @@ export default function AppShell({
 }) {
   return (
     <div className="min-h-screen bg-app">
-      <header className="sticky top-0 z-50 border-b border-app bg-app-card/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 font-display text-sm font-bold text-white">
-              SC
-            </div>
-            <div>
-              <p className="font-display text-base font-semibold text-app">{APP_NAME}</p>
-              {role && (
+      <header className="sticky top-0 z-50 border-b border-app bg-app/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <Logo />
+          <div className="flex items-center gap-4">
+            {role && (
+              <div className="hidden text-right sm:block">
+                <p className="text-sm font-medium text-app">{displayName}</p>
                 <p className="text-xs text-app-muted">
-                  {role} · {displayName} {readableId && `(${readableId})`}
+                  {role}
+                  {readableId && ` · ${readableId}`}
                 </p>
-              )}
-            </div>
-          </Link>
-          <div className="flex items-center gap-2">
+              </div>
+            )}
             <ThemeToggle />
             {onLogout && (
-              <button
-                onClick={onLogout}
-                className="rounded-lg border border-app px-3 py-1.5 text-sm text-app-muted hover:text-red-500"
-              >
+              <button onClick={onLogout} className="btn-secondary px-3 py-1.5 text-xs">
                 Logout
               </button>
             )}

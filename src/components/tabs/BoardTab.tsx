@@ -140,7 +140,7 @@ export default function BoardTab() {
         {!cameraActive ? (
           <button
             onClick={startCamera}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700"
           >
             Open Camera
           </button>
@@ -155,7 +155,7 @@ export default function BoardTab() {
             </button>
             <button
               onClick={stopCamera}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-100"
+              className="rounded-lg border border-app px-4 py-2 text-sm text-app transition hover:bg-app-secondary"
             >
               Close Camera
             </button>
@@ -164,7 +164,7 @@ export default function BoardTab() {
         <button
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
-          className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+          className="rounded-lg border border-app px-4 py-2 text-sm text-app transition hover:bg-app-secondary disabled:opacity-50"
         >
           Upload Image
         </button>
@@ -190,18 +190,18 @@ export default function BoardTab() {
       )}
 
       {cameraActive && (
-        <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-black">
+        <div className="relative overflow-hidden rounded-xl border border-app bg-black">
           <video ref={videoRef} autoPlay playsInline muted className="w-full" />
         </div>
       )}
       <canvas ref={canvasRef} className="hidden" />
 
       {preview && (
-        <div className="rounded-xl border border-slate-200 p-2">
+        <div className="rounded-xl border border-app p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="Preview" className="max-h-48 rounded-lg" />
           {loading && (
-            <p className="mt-2 text-center text-sm text-slate-500">
+            <p className="mt-2 text-center text-sm text-app-muted">
               Analyzing image… this may take a few seconds
             </p>
           )}
@@ -210,13 +210,13 @@ export default function BoardTab() {
 
       {boardCaptures.length > 0 && (
         <div className="flex-1 space-y-3 overflow-y-auto">
-          <h3 className="text-sm font-semibold text-slate-600">
+          <h3 className="text-sm font-semibold text-app">
             Captured Boards ({boardCaptures.length})
           </h3>
           {boardCaptures.map((capture) => (
             <div
               key={capture.id}
-              className="rounded-xl border border-slate-200 bg-white p-4"
+              className="rounded-xl border border-app bg-app-card p-4"
             >
               <div className="mb-2 flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -225,15 +225,15 @@ export default function BoardTab() {
                   alt="Board capture"
                   className="h-16 w-16 rounded-lg object-cover"
                 />
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-app-muted">
                   {new Date(capture.timestamp).toLocaleTimeString()}
                 </span>
               </div>
-              <p className="whitespace-pre-wrap text-sm text-slate-700">
+              <p className="whitespace-pre-wrap text-sm text-app">
                 {capture.description}
               </p>
               {capture.latex && (
-                <p className="mt-2 rounded bg-slate-50 p-2 font-mono text-xs text-slate-600">
+                <p className="mt-2 rounded bg-app-secondary p-2 font-mono text-xs text-app">
                   {capture.latex}
                 </p>
               )}
@@ -243,7 +243,7 @@ export default function BoardTab() {
       )}
 
       {boardCaptures.length === 0 && !cameraActive && !loading && (
-        <div className="flex flex-1 flex-col items-center justify-center text-slate-400">
+        <div className="flex flex-1 flex-col items-center justify-center text-app-muted">
           <div className="mb-4 text-5xl">📷</div>
           <p>Capture board snapshots during the lecture</p>
           <p className="mt-1 text-xs">Use camera or upload an image</p>

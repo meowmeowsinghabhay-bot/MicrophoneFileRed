@@ -19,7 +19,7 @@ export default function ControlPanel() {
           onClick={startRecording}
           className="flex items-center gap-2 rounded-lg bg-red-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-red-600 active:scale-95"
         >
-          <span className="h-3 w-3 rounded-full bg-white" />
+          <span className="h-3 w-3 rounded-full bg-app-card" />
           Start Lecture
         </button>
       ) : (

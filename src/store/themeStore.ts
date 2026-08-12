@@ -27,6 +27,6 @@ export const useThemeStore = create<ThemeState>()(
         }
       },
     }),
-    { name: "intelliclassroom-theme" }
+    { name: "intellishala-theme" }
   )
 );

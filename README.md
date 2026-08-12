@@ -1,6 +1,6 @@
-# SmartClass AI
+# IntelliShala
 
-SmartClass AI turns live classroom lectures into personalized, multilingual learning material — with a full **teacher portal**, **student portal**, and a **hybrid architecture** where code handles deterministic work and AI handles understanding.
+IntelliShala turns live classroom lectures into personalized, multilingual learning material — with a full **teacher portal**, **student portal**, and a **hybrid architecture** where code handles deterministic work and AI handles understanding.
 
 > **Live transcription + translation is preserved as-is.** The Web Speech API pipeline and translation hook logic were not refactored — only restyled to match the design system.
 

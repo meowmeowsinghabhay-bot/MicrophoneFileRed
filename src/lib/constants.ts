@@ -1,4 +1,5 @@
-export const APP_NAME = "SmartClass AI";
+export const APP_NAME = "IntelliShala";
+export const APP_TAGLINE = "Multilingual AI Classroom Assistant | Understand. Learn. Achieve.";
 
 export const LANGUAGES = [
   { code: "en", label: "English", native: "English" },

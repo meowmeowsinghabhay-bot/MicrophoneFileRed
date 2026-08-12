@@ -41,7 +41,7 @@ export default function ContentReviewPage() {
     <AppShell role="Teacher" displayName={user.displayName} readableId={user.readableId} onLogout={() => { useAuthStore.getState().logout(); router.push("/"); }}>
       <main className="mx-auto max-w-4xl px-4 py-8">
         <Link href="/teacher/dashboard" className="text-sm text-app-muted hover:text-brand-600">← Dashboard</Link>
-        <h1 className="mt-4 font-display text-2xl font-bold text-app">Review: {title}</h1>
+        <h1 className="mt-4 text-2xl font-bold text-app">Review: {title}</h1>
         <p className="text-sm text-app-muted">Edit AI content and set approval status</p>
 
         <div className="mt-8 space-y-6">

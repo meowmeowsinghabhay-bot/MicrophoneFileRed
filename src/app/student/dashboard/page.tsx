@@ -83,10 +83,10 @@ export default function StudentDashboard() {
       <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-bold text-app">My Learning</h1>
+            <h1 className="text-2xl font-bold text-app">My Learning</h1>
             <p className="text-app-muted">{courses.length} courses · {totalLectures} lectures available</p>
           </div>
-          <Link href="/session/live" className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">
+          <Link href="/session/live" className="btn-primary">
             🎙️ Join Live Session
           </Link>
         </div>
@@ -99,9 +99,9 @@ export default function StudentDashboard() {
               { label: "Avg Quiz Score", value: `${stats.avgQuizScore}%` },
               { label: "Bookmarks", value: stats.totalBookmarks },
             ].map((s) => (
-              <div key={s.label} className="rounded-2xl border border-app bg-app-card p-5 shadow-card dark:shadow-card-dark">
+              <div key={s.label} className="rounded-2xl border border-app bg-app-card p-5 shadow-app">
                 <p className="text-sm text-app-muted">{s.label}</p>
-                <p className="font-display text-2xl font-bold text-app">{s.value}</p>
+                <p className="text-2xl font-bold text-app">{s.value}</p>
               </div>
             ))}
           </div>
@@ -109,7 +109,7 @@ export default function StudentDashboard() {
 
         {continueLearning && (
           <div className="mb-8 rounded-2xl border-2 border-brand-500/30 bg-accent-soft/30 p-6">
-            <h2 className="font-display font-semibold text-app">Continue Learning</h2>
+            <h2 className="font-semibold text-app">Continue Learning</h2>
             <p className="text-sm text-app-muted">{continueLearning.course}</p>
             <p className="mt-1 font-medium text-app">{continueLearning.title}</p>
             <div className="mt-3 h-2 rounded-full bg-app-secondary">
@@ -123,7 +123,7 @@ export default function StudentDashboard() {
 
         {recentProgress.length > 0 && (
           <div className="mb-8">
-            <h2 className="mb-3 font-display font-semibold text-app">Recent Activity</h2>
+            <h2 className="mb-3 font-semibold text-app">Recent Activity</h2>
             <div className="grid gap-2 sm:grid-cols-2">
               {recentProgress.map((p) => (
                 <Link key={p.lectureId} href={`/lecture/${p.lectureId}`} className="rounded-xl border border-app bg-app-card p-4 hover:border-brand-500">
@@ -135,8 +135,8 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        <div className="mb-8 rounded-2xl border border-app bg-app-card p-6 shadow-card dark:shadow-card-dark">
-          <h2 className="font-display font-semibold text-app">Join a Course</h2>
+        <div className="mb-8 rounded-2xl border border-app bg-app-card p-6 shadow-app">
+          <h2 className="font-semibold text-app">Join a Course</h2>
           <div className="mt-3 flex gap-2">
             <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Join code" className="flex-1 rounded-lg border border-app bg-app-secondary px-4 py-2 text-app" />
             <button onClick={handleJoin} className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white">Join</button>
@@ -150,10 +150,10 @@ export default function StudentDashboard() {
         ) : (
           <div className="space-y-6">
             {courses.map((course) => (
-              <div key={course.id} className="rounded-2xl border border-app bg-app-card p-6 shadow-card dark:shadow-card-dark">
+              <div key={course.id} className="rounded-2xl border border-app bg-app-card p-6 shadow-app">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-display text-lg font-semibold text-app">{course.name}</h3>
+                    <h3 className="text-lg font-semibold text-app">{course.name}</h3>
                     <p className="text-sm text-app-muted">{course.code} · {course.teacher?.displayName}</p>
                   </div>
                   <span className="rounded-full bg-accent-soft px-3 py-1 text-xs font-medium text-brand-700">{course.lectures?.length || 0} lectures</span>

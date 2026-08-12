@@ -61,20 +61,14 @@ export default function TeacherDashboard() {
       <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="font-display text-2xl font-bold text-app">Teacher Dashboard</h1>
+            <h1 className="text-2xl font-bold text-app">Teacher Dashboard</h1>
             <p className="text-app-muted">Manage courses and review AI-generated content</p>
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowCreate(true)}
-              className="rounded-xl border border-app bg-app-card px-4 py-2 text-sm font-medium text-app hover:border-brand-500"
-            >
+            <button onClick={() => setShowCreate(true)} className="btn-secondary">
               + New Course
             </button>
-            <Link
-              href="/session/live"
-              className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"
-            >
+            <Link href="/session/live" className="btn-primary">
               🎙️ Record Lecture
             </Link>
           </div>
@@ -87,16 +81,16 @@ export default function TeacherDashboard() {
             { label: "Students", value: stats.activeStudents },
             { label: "Avg Quiz Score", value: `${stats.avgQuizScore}%` },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl border border-app bg-app-card p-5 shadow-card dark:shadow-card-dark">
+            <div key={s.label} className="rounded-2xl border border-app bg-app-card p-5 shadow-app">
               <p className="text-sm text-app-muted">{s.label}</p>
-              <p className="font-display text-2xl font-bold text-app">{s.value}</p>
+              <p className="text-2xl font-bold text-app">{s.value}</p>
             </div>
           ))}
         </div>
 
         {showCreate && (
           <div className="mb-8 rounded-2xl border border-app bg-app-card p-6">
-            <h2 className="font-display font-semibold text-app">Create Course</h2>
+            <h2 className="font-semibold text-app">Create Course</h2>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <input placeholder="Course name" value={newCourse.name} onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })} className="rounded-lg border border-app bg-app-secondary px-3 py-2 text-app" />
               <input placeholder="Course code" value={newCourse.code} onChange={(e) => setNewCourse({ ...newCourse, code: e.target.value })} className="rounded-lg border border-app bg-app-secondary px-3 py-2 text-app" />
@@ -112,7 +106,7 @@ export default function TeacherDashboard() {
 
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
-            <h2 className="mb-4 font-display font-semibold text-app">Your Courses</h2>
+            <h2 className="mb-4 font-semibold text-app">Your Courses</h2>
             <div className="space-y-3">
               {courses.map((c) => (
                 <Link
@@ -130,7 +124,7 @@ export default function TeacherDashboard() {
           </div>
 
           <div>
-            <h2 className="mb-4 font-display font-semibold text-app">Student Roster</h2>
+            <h2 className="mb-4 font-semibold text-app">Student Roster</h2>
             <div className="rounded-2xl border border-app bg-app-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-app-secondary text-left text-app-muted">

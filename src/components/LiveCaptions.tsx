@@ -62,7 +62,7 @@ export default function LiveCaptions() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-3xl">
             🎙️
           </div>
-          <p className="font-display text-lg font-medium text-app">Ready to capture</p>
+          <p className="text-lg font-semibold text-app">Ready to capture</p>
           <p className="mt-1 max-w-sm text-sm text-app-muted">
             Start the lecture to begin live transcription and translation
           </p>
@@ -71,7 +71,7 @@ export default function LiveCaptions() {
 
       <div
         ref={scrollRef}
-        className="caption-scroll flex-1 space-y-4 overflow-y-auto rounded-2xl border border-app bg-app-card p-6 shadow-card dark:shadow-card-dark"
+        className="caption-scroll flex-1 space-y-4 overflow-y-auto rounded-2xl border border-app bg-app-card p-6 shadow-app"
       >
         {displaySegments.map((segment) => (
           <div key={segment.id} className="border-b border-app pb-3 last:border-0">

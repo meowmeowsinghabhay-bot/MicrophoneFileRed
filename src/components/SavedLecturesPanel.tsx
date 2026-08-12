@@ -54,7 +54,7 @@ export default function SavedLecturesPanel() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-app bg-app-card p-3 shadow-card dark:shadow-card-dark">
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-app bg-app-card p-3 shadow-app">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-app-muted">
             Saved Lectures
           </p>

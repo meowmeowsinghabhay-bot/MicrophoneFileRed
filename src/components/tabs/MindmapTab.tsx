@@ -59,7 +59,7 @@ export default function MindmapTab() {
 
   if (!fullTranscript) {
     return (
-      <div className="flex h-full flex-col items-center justify-center text-slate-400">
+      <div className="flex h-full flex-col items-center justify-center text-app-muted">
         <div className="mb-4 text-5xl">🧠</div>
         <p>Record a lecture first to generate a mindmap</p>
       </div>
@@ -73,7 +73,7 @@ export default function MindmapTab() {
           <button
             onClick={generateMindmap}
             disabled={loading}
-            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 disabled:opacity-50"
+            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-50"
           >
             {loading ? "Generating..." : "Generate Mindmap"}
           </button>
@@ -83,11 +83,11 @@ export default function MindmapTab() {
       {mindmapMarkdown ? (
         <div
           ref={containerRef}
-          className="markmap-container flex-1 overflow-hidden rounded-xl border border-slate-200 bg-white"
+          className="markmap-container flex-1 overflow-hidden rounded-xl border border-app bg-app-card"
           style={{ minHeight: "400px" }}
         />
       ) : (
-        <div className="flex flex-1 items-center justify-center text-slate-400">
+        <div className="flex flex-1 items-center justify-center text-app-muted">
           <p>Click &quot;Generate Mindmap&quot; to visualize lecture topics</p>
         </div>
       )}

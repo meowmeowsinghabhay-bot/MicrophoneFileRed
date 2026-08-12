@@ -34,7 +34,7 @@ export default function TeacherCoursePage() {
     <AppShell role="Teacher" displayName={user.displayName} readableId={user.readableId} onLogout={() => { useAuthStore.getState().logout(); router.push("/"); }}>
       <main className="mx-auto max-w-4xl px-4 py-8">
         <Link href="/teacher/dashboard" className="text-sm text-app-muted hover:text-brand-600">← Dashboard</Link>
-        <h1 className="mt-4 font-display text-2xl font-bold text-app">Course Lectures</h1>
+        <h1 className="mt-4 text-2xl font-bold text-app">Course Lectures</h1>
         <div className="mt-6 space-y-3">
           {lectures.map((l) => (
             <div key={l.id} className="flex items-center justify-between rounded-xl border border-app bg-app-card p-4">

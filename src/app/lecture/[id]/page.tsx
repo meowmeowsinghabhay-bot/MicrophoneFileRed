@@ -162,7 +162,7 @@ export default function LectureViewerPage() {
 
         <div className="min-w-0 flex-1">
           <Link href={user.role === "teacher" ? "/teacher/dashboard" : "/student/dashboard"} className="text-sm text-app-muted hover:text-brand-600">← Dashboard</Link>
-          <h1 className="mt-2 font-display text-2xl font-bold text-app">{lecture.title}</h1>
+          <h1 className="mt-2 text-2xl font-bold text-app">{lecture.title}</h1>
           <p className="text-sm text-app-muted">{lecture.course.name} · {lecture.course.teacher.displayName}</p>
           {lecture.description && <p className="mt-1 text-sm text-app-muted">{lecture.description}</p>}
           {lecture.isDemo && <span className="mt-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700 dark:bg-amber-900/30">Demo Data</span>}
@@ -189,7 +189,7 @@ export default function LectureViewerPage() {
             ))}
           </div>
 
-          <div className="mt-4 rounded-2xl border border-app bg-app-card p-6 shadow-card dark:shadow-card-dark">
+          <div className="mt-4 rounded-2xl border border-app bg-app-card p-6 shadow-app">
             {tab === "transcript" && (
               <>
                 <div className="mb-4 flex gap-2">

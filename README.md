@@ -16,6 +16,8 @@
   ·
   <a href="#tech-stack">Tech Stack</a>
   ·
+  <a href="docs/TECHNICAL_DOCUMENTATION.md">Full Documentation</a>
+  ·
   <a href="#deployment">Deploy</a>
 </p>
 
@@ -357,7 +359,41 @@ scripts/
 
 ---
 
-## License
+## How it works
+
+Simple end-to-end workflow:
+
+```mermaid
+flowchart LR
+    A["Login\nStudent / Teacher"] --> B["Live session\nSpeak → Captions"]
+    B --> C["Translate +\nAI notes & mindmap"]
+    C --> D["Teacher reviews\n& publishes"]
+    D --> E["Student learns\nQuiz · Progress"]
+
+    style A fill:#e0f2fe
+    style B fill:#fef9c3
+    style C fill:#fce7f3
+    style D fill:#dbeafe
+    style E fill:#dcfce7
+```
+
+**[Full workflow charts →](docs/WORKFLOW.md)** (master diagram, live session sequence, AI vs code)
+
+---
+
+For evaluation prep, architecture deep-dives, technology alternatives, and a full Q&A bank for judges:
+
+**[docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_DOCUMENTATION.md)**
+
+Covers:
+- Every technology with alternatives and why we rejected them
+- System architecture and data model
+- Hybrid AI vs code rationale
+- 50+ likely evaluation questions with sample answers
+- 5-minute demo script for judges
+- Honest security limitations and future roadmap
+
+---
 
 This project was built for educational and hackathon use. Adapt and extend as needed.
 

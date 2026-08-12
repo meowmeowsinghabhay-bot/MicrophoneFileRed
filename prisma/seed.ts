@@ -87,7 +87,7 @@ async function createLecture(
   return lecture;
 }
 
-async function main() {
+export async function runSeed() {
   await prisma.quizAttempt.deleteMany();
   await prisma.bookmark.deleteMany();
   await prisma.lectureProgress.deleteMany();
@@ -574,6 +574,12 @@ If you joined late, here's what you missed after the 1:30 mark:
   console.log(`Students enrolled in all ${courses.length} courses`);
 }
 
-main()
-  .catch(console.error)
-  .finally(() => prisma.$disconnect());
+async function main() {
+  await runSeed();
+}
+
+if (process.argv.some((arg) => arg.replace(/\\/g, "/").includes("prisma/seed.ts"))) {
+  main()
+    .catch(console.error)
+    .finally(() => prisma.$disconnect());
+}

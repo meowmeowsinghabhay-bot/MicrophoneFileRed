@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LIVE_TABS, TabId } from "@/lib/constants";
 import { useAuthStore } from "@/store/authStore";
+import CourseSelector from "@/components/CourseSelector";
 import ControlPanel from "@/components/ControlPanel";
 import LanguageSelector from "@/components/LanguageSelector";
 import LiveCaptions from "@/components/LiveCaptions";
@@ -66,6 +67,7 @@ export default function LiveSessionPage() {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            {user.role === "teacher" && <CourseSelector />}
             <LanguageSelector />
             <ControlPanel />
             <SaveLectureButton />

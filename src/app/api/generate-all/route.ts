@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    if (body.action === "generate-all") {
+    if (body.action === "generate-all" || (body.transcript?.trim() && !body.texts && !body.text)) {
       return handleGenerateAll(body);
     }
 

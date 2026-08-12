@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { renderMarkmapInContainer } from "@/lib/markmap-render";
 
 export default function MindmapTab() {
   const [loading, setLoading] = useState(false);
@@ -32,28 +33,20 @@ export default function MindmapTab() {
   useEffect(() => {
     if (!mindmapMarkdown || !containerRef.current) return;
 
-    let markmap: { destroy: () => void } | null = null;
+    let instance: { destroy: () => void } | null = null;
+    let cancelled = false;
 
-    async function render() {
-      const { Transformer } = await import("markmap-lib");
-      const { Markmap } = await import("markmap-view");
-
-      const transformer = new Transformer();
-      const { root } = transformer.transform(mindmapMarkdown);
-
-      if (containerRef.current) {
-        containerRef.current.innerHTML = "";
-        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.style.width = "100%";
-        svg.style.height = "100%";
-        containerRef.current.appendChild(svg);
-        markmap = Markmap.create(svg, { autoFit: true }, root);
+    renderMarkmapInContainer(containerRef.current, mindmapMarkdown).then((result) => {
+      if (cancelled) {
+        result.destroy();
+        return;
       }
-    }
+      instance = result;
+    });
 
-    render();
     return () => {
-      markmap?.destroy();
+      cancelled = true;
+      instance?.destroy();
     };
   }, [mindmapMarkdown]);
 

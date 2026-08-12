@@ -62,4 +62,5 @@ export interface LectureState {
   recordingStartTime: number | null;
   showSimplified: boolean;
   translationError: string | null;
+  selectedCourseId: string | null;
 }

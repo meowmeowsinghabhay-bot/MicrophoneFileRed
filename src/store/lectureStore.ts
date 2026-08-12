@@ -39,6 +39,7 @@ interface LectureActions {
   addChatMessage: (message: ChatMessage) => void;
   toggleSimplified: () => void;
   setTranslationError: (error: string | null) => void;
+  setSelectedCourseId: (courseId: string | null) => void;
   loadLectureData: (data: Partial<LectureState>) => void;
   getLectureSnapshot: () => Omit<LectureState, "isRecording" | "translationError">;
   reset: () => void;
@@ -63,6 +64,7 @@ const initialState: LectureState = {
   recordingStartTime: null,
   showSimplified: false,
   translationError: null,
+  selectedCourseId: null,
 };
 
 export const useLectureStore = create<LectureState & LectureActions>((set, get) => ({
@@ -218,6 +220,8 @@ export const useLectureStore = create<LectureState & LectureActions>((set, get) 
 
   setTranslationError: (error) => set({ translationError: error }),
 
+  setSelectedCourseId: (courseId) => set({ selectedCourseId: courseId }),
+
   loadLectureData: (data) =>
     set((state) => ({
       ...state,
@@ -243,6 +247,7 @@ export const useLectureStore = create<LectureState & LectureActions>((set, get) 
       chatMessages: s.chatMessages,
       recordingStartTime: s.recordingStartTime,
       showSimplified: s.showSimplified,
+      selectedCourseId: s.selectedCourseId,
     };
   },
 

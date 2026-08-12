@@ -58,6 +58,8 @@ export default function LectureViewerPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [catchUpFrom, setCatchUpFrom] = useState("0:00");
   const [showTranslated, setShowTranslated] = useState(true);
+  const [bookmarkLabel, setBookmarkLabel] = useState("");
+  const [bookmarkMsg, setBookmarkMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) { router.replace("/"); return; }
@@ -71,6 +73,58 @@ export default function LectureViewerPage() {
       setBookmarks(bmData.bookmarks || []);
     });
   }, [params.id, user, router]);
+
+  useEffect(() => {
+    if (!user || user.role !== "student" || user.id === "demo" || !lecture) return;
+
+    fetch(`/api/lectures/${params.id}/progress`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentId: user.id,
+        lastPositionMs: 0,
+        completed: false,
+      }),
+    }).catch(() => {
+      /* non-blocking */
+    });
+  }, [user, lecture, params.id]);
+
+  const addBookmark = async () => {
+    if (!user || user.role !== "student" || user.id === "demo" || !bookmarkLabel.trim()) return;
+    setBookmarkMsg(null);
+    try {
+      const res = await fetch(`/api/lectures/${params.id}/bookmarks`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: user.id,
+          label: bookmarkLabel.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to add bookmark");
+      setBookmarks((prev) => [data.bookmark, ...prev]);
+      setBookmarkLabel("");
+      setBookmarkMsg("Bookmark saved");
+    } catch (err) {
+      setBookmarkMsg(err instanceof Error ? err.message : "Could not save bookmark");
+    }
+  };
+
+  const markComplete = async () => {
+    if (!user || user.role !== "student" || user.id === "demo" || !lecture) return;
+    await fetch(`/api/lectures/${params.id}/progress`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        studentId: user.id,
+        lastPositionMs: lecture.durationMs || 0,
+        completed: true,
+      }),
+    });
+    setBookmarkMsg("Marked as complete");
+  };
 
   if (!user || !lecture) {
     return <div className="flex min-h-screen items-center justify-center bg-app text-app-muted">Loading lecture…</div>;
@@ -166,6 +220,16 @@ export default function LectureViewerPage() {
           <p className="text-sm text-app-muted">{lecture.course.name} · {lecture.course.teacher.displayName}</p>
           {lecture.description && <p className="mt-1 text-sm text-app-muted">{lecture.description}</p>}
           {lecture.isDemo && <span className="mt-2 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs text-amber-700 dark:bg-amber-900/30">Demo Data</span>}
+          {user.role === "student" && user.id !== "demo" && (
+            <button
+              type="button"
+              onClick={markComplete}
+              className="ml-2 mt-2 rounded-lg border border-app px-3 py-1 text-xs text-app-muted hover:text-brand-600"
+            >
+              Mark complete
+            </button>
+          )}
+          {bookmarkMsg && <p className="mt-1 text-xs text-app-muted">{bookmarkMsg}</p>}
 
           <input
             value={searchQuery}
@@ -235,7 +299,13 @@ export default function LectureViewerPage() {
               </div>
             )}
 
-            {tab === "quiz" && <QuizViewer questions={quizQuestions} />}
+            {tab === "quiz" && (
+              <QuizViewer
+                questions={quizQuestions}
+                lectureId={lecture.id}
+                studentId={user.role === "student" ? user.id : undefined}
+              />
+            )}
             {tab === "explain" && <ExplainBackTab />}
             {tab === "chat" && <ChatTab />}
 
@@ -251,13 +321,36 @@ export default function LectureViewerPage() {
             )}
 
             {tab === "bookmarks" && (
-              <div className="space-y-2">
-                {bookmarks.length === 0 ? <p className="text-app-muted">No bookmarks yet for this lecture.</p> : bookmarks.map((b) => (
-                  <div key={b.id} className="flex items-center justify-between rounded-xl bg-app-secondary px-4 py-3">
-                    <span className="text-sm text-app">🔖 {b.label}</span>
-                    {b.timestampMs != null && <span className="font-mono text-xs text-brand-600">{formatMs(b.timestampMs)}</span>}
+              <div className="space-y-4">
+                {user.role === "student" && user.id !== "demo" && (
+                  <div className="flex flex-wrap gap-2">
+                    <input
+                      value={bookmarkLabel}
+                      onChange={(e) => setBookmarkLabel(e.target.value)}
+                      placeholder="Add a bookmark label…"
+                      className="flex-1 rounded-lg border border-app bg-app-secondary px-3 py-2 text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={addBookmark}
+                      className="btn-primary px-4 py-2 text-sm"
+                    >
+                      Add bookmark
+                    </button>
                   </div>
-                ))}
+                )}
+                {bookmarks.length === 0 ? (
+                  <p className="text-app-muted">No bookmarks yet for this lecture.</p>
+                ) : (
+                  bookmarks.map((b) => (
+                    <div key={b.id} className="flex items-center justify-between rounded-xl bg-app-secondary px-4 py-3">
+                      <span className="text-sm text-app">🔖 {b.label}</span>
+                      {b.timestampMs != null && (
+                        <span className="font-mono text-xs text-brand-600">{formatMs(b.timestampMs)}</span>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>

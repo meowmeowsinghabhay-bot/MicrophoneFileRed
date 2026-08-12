@@ -49,6 +49,7 @@ export default function GenerateAllButton() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "generate-all",
           transcript: fullTranscript,
           targetLanguage: LANGUAGE_NAMES[targetLanguage],
           importantLines: importantLines.map((l) => l.text),

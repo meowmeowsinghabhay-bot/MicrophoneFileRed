@@ -5,6 +5,7 @@ import { useLectureStore } from "@/store/lectureStore";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useLiveTranslation } from "@/hooks/useLiveTranslation";
 import { LANGUAGE_NAMES } from "@/lib/constants";
+import SpeakButton from "@/components/SpeakButton";
 
 /** Visual shell only — speech + translation hooks are untouched black boxes. */
 export default function LiveCaptions() {
@@ -74,7 +75,17 @@ export default function LiveCaptions() {
         className="caption-scroll flex-1 space-y-4 overflow-y-auto rounded-2xl border border-app bg-app-card p-6 shadow-app"
       >
         {displaySegments.map((segment) => (
-          <div key={segment.id} className="border-b border-app pb-3 last:border-0">
+          <div key={segment.id} className="group border-b border-app pb-3 last:border-0">
+            <div className="mb-1 flex flex-wrap items-center gap-2 sm:opacity-0 sm:transition sm:group-hover:opacity-100">
+              <SpeakButton text={segment.text} langCode="en" label="Read English aloud" />
+              {targetLanguage !== "en" && segment.translatedText && (
+                <SpeakButton
+                  text={segment.translatedText.replace(/^\[[A-Za-z]{2}\]\s*/, "")}
+                  langCode={targetLanguage}
+                  label="Read translation aloud"
+                />
+              )}
+            </div>
             <p
               className={`text-base leading-relaxed text-app ${!segment.isFinal ? "italic opacity-60" : ""}`}
             >

@@ -3,6 +3,11 @@ import { callLLM } from "@/lib/llm";
 import { fallbackTranslate, getTranslationErrorMessage } from "@/lib/translate";
 import { LANGUAGES } from "@/lib/constants";
 import { LanguageCode } from "@/lib/constants";
+import {
+  getTranslationLevelInstruction,
+  normalizeLearningLevel,
+} from "@/lib/learning-level";
+import { preserveTerminology } from "@/lib/terminology";
 
 function resolveLanguageCode(targetLanguage: string): LanguageCode | null {
   const match = LANGUAGES.find(
@@ -16,7 +21,7 @@ function resolveLanguageCode(targetLanguage: string): LanguageCode | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const { texts, text, targetLanguage } = await request.json();
+    const { texts, text, targetLanguage, learningLevel } = await request.json();
 
     const items: string[] = Array.isArray(texts)
       ? texts.filter((t: string) => t?.trim())
@@ -41,14 +46,18 @@ export async function POST(request: NextRequest) {
 
     let translations: string[] | null = null;
     let source: "openai" | "fallback" = "openai";
+    const level = normalizeLearningLevel(learningLevel);
+    const langCode = resolveLanguageCode(targetLanguage);
 
     try {
       const numberedInput = items.map((t, i) => `${i + 1}. ${t}`).join("\n");
       const result = await callLLM(
         `You are a real-time classroom caption translator. Translate each numbered line from English to ${targetLanguage}.
 Rules:
+- ${getTranslationLevelInstruction(level)}
 - Output ONLY a JSON array of translated strings, same length and order as input.
 - Use the native script for ${targetLanguage}.
+- Preserve formulas (e.g. O(log n)) and standard CS/math notation unchanged.
 - Do NOT repeat the English text.
 Return nothing except the JSON array.`,
         numberedInput,
@@ -93,6 +102,10 @@ Return nothing except the JSON array.`,
 
     if (!translations) {
       return NextResponse.json({ error: "Translation format mismatch" }, { status: 500 });
+    }
+
+    if (langCode) {
+      translations = translations.map((t) => preserveTerminology(t, langCode));
     }
 
     return NextResponse.json({ translated: translations[0], translations, source });

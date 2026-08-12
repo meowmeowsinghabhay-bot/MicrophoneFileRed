@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import CourseSelector from "@/components/CourseSelector";
 import ControlPanel from "@/components/ControlPanel";
 import LanguageSelector from "@/components/LanguageSelector";
+import LearningLevelSelector from "@/components/LearningLevelSelector";
 import LiveCaptions from "@/components/LiveCaptions";
 import NotesTab from "@/components/tabs/NotesTab";
 import MindmapTab from "@/components/tabs/MindmapTab";
@@ -18,6 +19,7 @@ import RevisionTab from "@/components/tabs/RevisionTab";
 import ExplainBackTab from "@/components/tabs/ExplainBackTab";
 import ChatTab from "@/components/tabs/ChatTab";
 import BoardTab from "@/components/tabs/BoardTab";
+import GlossaryTab from "@/components/tabs/GlossaryTab";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import SaveLectureButton from "@/components/SaveLectureButton";
@@ -27,6 +29,7 @@ const TAB_COMPONENTS: Record<TabId, React.ComponentType> = {
   live: LiveCaptions,
   notes: NotesTab,
   mindmap: MindmapTab,
+  glossary: GlossaryTab,
   timeline: TimelineTab,
   important: ImportantTab,
   exam: ExamTab,
@@ -36,7 +39,7 @@ const TAB_COMPONENTS: Record<TabId, React.ComponentType> = {
   board: BoardTab,
 };
 
-const STUDENT_TABS: TabId[] = ["live", "notes", "mindmap", "timeline", "important", "exam", "revision", "explain", "chat"];
+const STUDENT_TABS: TabId[] = ["live", "notes", "mindmap", "glossary", "timeline", "important", "exam", "revision", "explain", "chat"];
 const TEACHER_TABS: TabId[] = [...STUDENT_TABS, "board"];
 
 export default function LiveSessionPage() {
@@ -69,6 +72,7 @@ export default function LiveSessionPage() {
           <div className="flex flex-wrap items-center gap-2">
             {user.role === "teacher" && <CourseSelector />}
             <LanguageSelector />
+            <LearningLevelSelector compact />
             <ControlPanel />
             <SaveLectureButton />
             {user.role === "teacher" && <GenerateAllButton />}

@@ -132,6 +132,21 @@ body {
   height: 100%;
 }
 
+.transcript-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.transcript-segment-important .rounded-2xl {
+  border-color: rgb(245 158 11 / 0.35);
+  background: rgb(245 158 11 / 0.05);
+}
+
+.transcript-panel mark {
+  background: rgb(211 47 47 / 0.18);
+  color: inherit;
+}
+
 .prose-edu {
   --tw-prose-body: var(--text);
   --tw-prose-headings: var(--text);

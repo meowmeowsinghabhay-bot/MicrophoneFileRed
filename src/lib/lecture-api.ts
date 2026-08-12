@@ -3,6 +3,7 @@ import {
   BoardCapture,
   ChatMessage,
   ExamQuestion,
+  GlossaryTerm,
   TimelineSegment,
   TranscriptSegment,
 } from "./types";
@@ -21,6 +22,7 @@ export interface LectureSnapshotInput {
   revisionNotes: string;
   chatMessages: ChatMessage[];
   recordingStartTime: number | null;
+  glossaryTerms: GlossaryTerm[];
 }
 
 export function buildLectureTitle(fullTranscript: string): string {
@@ -74,6 +76,13 @@ export function snapshotToApiPayload(snapshot: LectureSnapshotInput, courseId: s
       content: snapshot.boardCaptures
         .map((c) => `[${new Date(c.timestamp).toLocaleTimeString()}]\n${c.description}`)
         .join("\n\n"),
+    });
+  }
+  if (snapshot.glossaryTerms.length > 0) {
+    contentBlocks.push({
+      type: "glossary",
+      content: JSON.stringify(snapshot.glossaryTerms),
+      status: "AI Generated",
     });
   }
 

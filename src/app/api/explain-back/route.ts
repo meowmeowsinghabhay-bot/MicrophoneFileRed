@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { callLLM } from "@/lib/llm";
+import {
+  getExplainBackLevelInstruction,
+  normalizeLearningLevel,
+} from "@/lib/learning-level";
 
 export async function POST(request: NextRequest) {
   try {
-    const { concept, studentExplanation, transcript, notes } = await request.json();
+    const { concept, studentExplanation, transcript, notes, learningLevel } =
+      await request.json();
 
     if (!concept || !studentExplanation) {
       return NextResponse.json(
@@ -12,8 +17,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const level = normalizeLearningLevel(learningLevel);
+
     const result = await callLLM(
-      `You are a patient tutor evaluating a student's explanation. Compare their explanation against the lecture content. Be encouraging but honest.
+      `You are a patient tutor evaluating a student's explanation. Compare their explanation against the lecture content.
+${getExplainBackLevelInstruction(level)}
 
 Respond in JSON format ONLY:
 {

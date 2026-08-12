@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { usePreferencesStore } from "@/store/preferencesStore";
 import { LANGUAGE_NAMES } from "@/lib/constants";
 
 const BATCH_DELAY_MS = 400;
@@ -54,6 +55,7 @@ export function useLiveTranslation() {
         body: JSON.stringify({
           texts: batch.map((s) => s.text),
           targetLanguage: LANGUAGE_NAMES[lang],
+          learningLevel: usePreferencesStore.getState().learningLevel,
         }),
       });
 

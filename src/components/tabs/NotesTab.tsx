@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { usePreferencesStore } from "@/store/preferencesStore";
 import { LANGUAGE_NAMES } from "@/lib/constants";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
@@ -17,6 +18,7 @@ export default function NotesTab() {
   const simplifiedNotes = useLectureStore((s) => s.simplifiedNotes);
   const showSimplified = useLectureStore((s) => s.showSimplified);
   const targetLanguage = useLectureStore((s) => s.targetLanguage);
+  const learningLevel = usePreferencesStore((s) => s.learningLevel);
   const setStructuredNotes = useLectureStore((s) => s.setStructuredNotes);
   const setSimplifiedNotes = useLectureStore((s) => s.setSimplifiedNotes);
   const toggleSimplified = useLectureStore((s) => s.toggleSimplified);
@@ -56,6 +58,7 @@ export default function NotesTab() {
         body: JSON.stringify({
           notes: structuredNotes,
           targetLanguage: LANGUAGE_NAMES[targetLanguage],
+          learningLevel,
         }),
       });
       const data = await res.json();

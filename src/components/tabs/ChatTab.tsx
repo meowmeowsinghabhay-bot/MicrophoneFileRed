@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { usePreferencesStore } from "@/store/preferencesStore";
 
 export default function ChatTab() {
   const [input, setInput] = useState("");
@@ -11,6 +12,7 @@ export default function ChatTab() {
   const structuredNotes = useLectureStore((s) => s.structuredNotes);
   const chatMessages = useLectureStore((s) => s.chatMessages);
   const addChatMessage = useLectureStore((s) => s.addChatMessage);
+  const learningLevel = usePreferencesStore((s) => s.learningLevel);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +39,7 @@ export default function ChatTab() {
           question,
           transcript: fullTranscript,
           notes: structuredNotes,
+          learningLevel,
         }),
       });
       const data = await res.json();

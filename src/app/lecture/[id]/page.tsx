@@ -16,6 +16,9 @@ import ChatTab from "@/components/tabs/ChatTab";
 import LectureHydrator from "@/components/lecture/LectureHydrator";
 import MindmapViewer from "@/components/lecture/MindmapViewer";
 import QuizViewer from "@/components/lecture/QuizViewer";
+import TranscriptPanel from "@/components/lecture/TranscriptPanel";
+import LectureGlossaryView from "@/components/lecture/LectureGlossaryView";
+import LearningLevelSelector from "@/components/LearningLevelSelector";
 
 interface LectureData {
   id: string;
@@ -24,6 +27,7 @@ interface LectureData {
   published: boolean;
   isDemo: boolean;
   durationMs: number | null;
+  language?: string | null;
   segments: { id: string; text: string; translatedText: string | null; startMs: number; endMs: number; isImportant: boolean; isManualFlag: boolean }[];
   contentBlocks: { id: string; type: string; content: string; status: string }[];
   course: { name: string; teacher: { displayName: string } };
@@ -57,7 +61,6 @@ export default function LectureViewerPage() {
   const [tab, setTab] = useState<ViewerTabId>("transcript");
   const [searchQuery, setSearchQuery] = useState("");
   const [catchUpFrom, setCatchUpFrom] = useState("0:00");
-  const [showTranslated, setShowTranslated] = useState(true);
   const [bookmarkLabel, setBookmarkLabel] = useState("");
   const [bookmarkMsg, setBookmarkMsg] = useState<string | null>(null);
 
@@ -147,6 +150,7 @@ export default function LectureViewerPage() {
   const revision = block(lecture, "revision");
   const formulas = block(lecture, "formulas");
   const concepts = block(lecture, "concepts");
+  const glossaryBlock = block(lecture, "glossary");
   const board = block(lecture, "board");
   const summary = block(lecture, "summary");
   const quizBlock = block(lecture, "quiz");
@@ -231,12 +235,15 @@ export default function LectureViewerPage() {
           )}
           {bookmarkMsg && <p className="mt-1 text-xs text-app-muted">{bookmarkMsg}</p>}
 
-          <input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search transcript, notes, concepts…"
-            className="mt-4 w-full rounded-xl border border-app bg-app-card px-4 py-2 text-sm"
-          />
+          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search transcript, notes, concepts…"
+              className="w-full rounded-xl border border-app bg-app-card px-4 py-2 text-sm"
+            />
+            <LearningLevelSelector compact />
+          </div>
           {searchQuery && searchResults.length > 0 && (
             <div className="mt-2 rounded-xl border border-app bg-app-secondary p-3 text-sm">
               {searchResults.slice(0, 6).map((r, i) => (
@@ -255,28 +262,31 @@ export default function LectureViewerPage() {
 
           <div className="mt-4 rounded-2xl border border-app bg-app-card p-6 shadow-app">
             {tab === "transcript" && (
-              <>
-                <div className="mb-4 flex gap-2">
-                  <button onClick={() => setShowTranslated(false)} className={`rounded-lg px-3 py-1 text-xs ${!showTranslated ? "bg-accent-soft" : "border border-app"}`}>Original</button>
-                  <button onClick={() => setShowTranslated(true)} className={`rounded-lg px-3 py-1 text-xs ${showTranslated ? "bg-accent-soft" : "border border-app"}`}>Bilingual</button>
-                </div>
-                <div className="max-h-[500px] space-y-3 overflow-y-auto">
-                  {lecture.segments.map((s) => (
-                    <div key={s.id} className="border-b border-app pb-2">
-                      <span className="font-mono text-xs text-app-muted">{formatMs(s.startMs)}</span>
-                      {s.isImportant && <span className="ml-2 rounded bg-amber-100 px-1.5 text-xs text-amber-700 dark:bg-amber-900/30">⭐ {s.isManualFlag ? "Teacher flagged" : "Code-detected"}</span>}
-                      <p className="text-app">{s.text}</p>
-                      {showTranslated && s.translatedText && <p className="text-brand-600 dark:text-brand-400">{s.translatedText}</p>}
-                    </div>
-                  ))}
-                </div>
-              </>
+              <TranscriptPanel
+                segments={lecture.segments}
+                durationMs={lecture.durationMs}
+                targetLanguage={lecture.language}
+                searchQuery={searchQuery}
+                onJumpToTime={(ms) => {
+                  const s = Math.floor(ms / 1000);
+                  setCatchUpFrom(`${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, "0")}`);
+                  setTab("catchup");
+                }}
+              />
             )}
 
             {tab === "notes" && notes && <MarkdownBlock content={notes.content} status={notes.status} />}
             {tab === "simplified" && simplified && <MarkdownBlock content={simplified.content} status={simplified.status} />}
             {tab === "formulas" && formulas && <MarkdownBlock content={formulas.content} status={formulas.status} math />}
             {tab === "concepts" && concepts && <MarkdownBlock content={concepts.content} status={concepts.status} />}
+            {tab === "glossary" && (
+              <LectureGlossaryView
+                transcript={fullTranscript}
+                notes={notes?.content}
+                targetLanguage={lecture.language}
+                savedContent={glossaryBlock?.content}
+              />
+            )}
             {tab === "board" && board && <MarkdownBlock content={board.content} status={board.status} />}
             {tab === "revision" && revision && <MarkdownBlock content={revision.content} status={revision.status} />}
             {tab === "mindmap" && mindmap && <MindmapViewer markdown={mindmap.content} />}

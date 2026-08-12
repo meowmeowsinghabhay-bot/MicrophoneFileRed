@@ -45,6 +45,13 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface GlossaryTerm {
+  term: string;
+  definition: string;
+  translation?: string;
+  category: "term" | "concept" | "formula";
+}
+
 export interface LectureState {
   isRecording: boolean;
   targetLanguage: LanguageCode;
@@ -63,4 +70,5 @@ export interface LectureState {
   showSimplified: boolean;
   translationError: string | null;
   selectedCourseId: string | null;
+  glossaryTerms: GlossaryTerm[];
 }

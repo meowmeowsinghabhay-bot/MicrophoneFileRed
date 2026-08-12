@@ -313,6 +313,30 @@ inorder(node):
 7. **AVL Tree** — self-balancing BST maintaining O(log n) height`,
       },
       {
+        type: "glossary",
+        content: JSON.stringify([
+          {
+            term: "Binary Search Tree",
+            definition: "A hierarchical data structure where each node has at most two children and values in the left subtree are smaller than the node.",
+            translation: "एक पदानुक्रमित डेटा संरचना जहाँ बाएँ subtree के मान नोड से छोटे होते हैं।",
+            category: "concept",
+          },
+          {
+            term: "O(log n)",
+            definition: "Logarithmic time complexity — operations grow slowly as input size increases; typical for balanced trees.",
+            translation: "लघुगणकीय समय जटिलता — संतुलित tree में खोज की typical complexity।",
+            category: "formula",
+          },
+          {
+            term: "In-order Traversal",
+            definition: "Visit left subtree, then node, then right subtree — produces sorted output in a BST.",
+            translation: "पहले बाएँ, फिर नोड, फिर दाएँ — BST में sorted क्रम देता है।",
+            category: "term",
+          },
+        ]),
+        status: "AI Generated",
+      },
+      {
         type: "board",
         content: `## Board Capture 1 (0:20)
 Tree diagram drawn on board:

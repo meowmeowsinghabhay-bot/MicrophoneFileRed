@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { usePreferencesStore } from "@/store/preferencesStore";
 import { ExplainBackResult } from "@/lib/types";
 
 export default function ExplainBackTab() {
@@ -11,6 +12,7 @@ export default function ExplainBackTab() {
   const [result, setResult] = useState<ExplainBackResult | null>(null);
   const fullTranscript = useLectureStore((s) => s.fullTranscript);
   const structuredNotes = useLectureStore((s) => s.structuredNotes);
+  const learningLevel = usePreferencesStore((s) => s.learningLevel);
 
   const evaluate = async () => {
     if (!concept.trim() || !explanation.trim()) return;
@@ -25,6 +27,7 @@ export default function ExplainBackTab() {
           studentExplanation: explanation,
           transcript: fullTranscript,
           notes: structuredNotes,
+          learningLevel,
         }),
       });
       const data = await res.json();

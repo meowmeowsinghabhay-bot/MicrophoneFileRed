@@ -4,6 +4,7 @@ import {
   BoardCapture,
   ChatMessage,
   ExamQuestion,
+  GlossaryTerm,
   LectureState,
   TimelineSegment,
   TranscriptSegment,
@@ -40,6 +41,7 @@ interface LectureActions {
   toggleSimplified: () => void;
   setTranslationError: (error: string | null) => void;
   setSelectedCourseId: (courseId: string | null) => void;
+  setGlossaryTerms: (terms: GlossaryTerm[]) => void;
   loadLectureData: (data: Partial<LectureState>) => void;
   getLectureSnapshot: () => Omit<LectureState, "isRecording" | "translationError">;
   reset: () => void;
@@ -65,6 +67,7 @@ const initialState: LectureState = {
   showSimplified: false,
   translationError: null,
   selectedCourseId: null,
+  glossaryTerms: [],
 };
 
 export const useLectureStore = create<LectureState & LectureActions>((set, get) => ({
@@ -222,6 +225,8 @@ export const useLectureStore = create<LectureState & LectureActions>((set, get) 
 
   setSelectedCourseId: (courseId) => set({ selectedCourseId: courseId }),
 
+  setGlossaryTerms: (terms) => set({ glossaryTerms: terms }),
+
   loadLectureData: (data) =>
     set((state) => ({
       ...state,
@@ -248,6 +253,7 @@ export const useLectureStore = create<LectureState & LectureActions>((set, get) 
       recordingStartTime: s.recordingStartTime,
       showSimplified: s.showSimplified,
       selectedCourseId: s.selectedCourseId,
+      glossaryTerms: s.glossaryTerms,
     };
   },
 

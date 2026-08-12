@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import AuthInit from "@/components/AuthInit";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,7 +34,10 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} min-h-screen bg-app font-sans antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <AuthInit />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

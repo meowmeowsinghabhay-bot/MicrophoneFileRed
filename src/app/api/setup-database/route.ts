@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { prisma, createDirectPrismaClient } from "@/lib/db";
 import { handleRouteError } from "@/lib/handle-route";
 import { isMissingTableError } from "@/lib/database-url";
+import { repairAllStudentEnrollments } from "@/lib/ensure-enrollments";
 import { runSeed } from "../../../../prisma/seed";
 
 export const maxDuration = 60;
@@ -13,6 +14,32 @@ function splitSqlStatements(sql: string): string[] {
     .split(/;\s*\n/)
     .map((s) => s.trim())
     .filter((s) => s.length > 0 && !s.startsWith("--"));
+}
+
+async function getDbCounts(db: ReturnType<typeof createDirectPrismaClient>) {
+  try {
+    const [users, courses, enrollments, lectures] = await Promise.all([
+      db.user.count(),
+      db.course.count(),
+      db.enrollment.count(),
+      db.lecture.count(),
+    ]);
+    return { users, courses, enrollments, lectures };
+  } catch (err) {
+    if (isMissingTableError(err)) {
+      return { users: 0, courses: 0, enrollments: 0, lectures: 0 };
+    }
+    throw err;
+  }
+}
+
+function isFullySeeded(counts: {
+  users: number;
+  courses: number;
+  enrollments: number;
+  lectures: number;
+}) {
+  return counts.users >= 5 && counts.courses >= 4 && counts.enrollments >= 4 && counts.lectures >= 1;
 }
 
 export async function GET(request: NextRequest) {
@@ -36,52 +63,64 @@ export async function GET(request: NextRequest) {
   const directDb = createDirectPrismaClient();
 
   try {
-    const existing = await directDb.user.count();
-    if (existing > 0) {
+    let counts = await getDbCounts(directDb);
+
+    if (isFullySeeded(counts)) {
       return NextResponse.json({
         ok: true,
         message: "Database already initialized.",
-        users: existing,
+        ...counts,
         logins: ["student / student123", "teacher / teacher123"],
       });
     }
-  } catch (err: unknown) {
-    if (!isMissingTableError(err)) {
-      return handleRouteError(err, "Setup check");
-    }
-  }
 
-  try {
-    const sqlPath = join(process.cwd(), "prisma", "supabase-init.sql");
-    const sql = readFileSync(sqlPath, "utf8");
-    const statements = splitSqlStatements(sql);
-
-    for (const statement of statements) {
-      try {
-        await directDb.$executeRawUnsafe(statement);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        if (
-          msg.includes("already exists") ||
-          msg.includes("duplicate") ||
-          msg.includes("42710")
-        ) {
-          continue;
-        }
-        throw err;
+    if (counts.users > 0 && counts.courses > 0 && counts.enrollments === 0) {
+      await repairAllStudentEnrollments(directDb);
+      counts = await getDbCounts(directDb);
+      if (isFullySeeded(counts)) {
+        return NextResponse.json({
+          ok: true,
+          message: "Repaired missing enrollments (no data wipe).",
+          ...counts,
+          logins: ["student / student123", "teacher / teacher123"],
+        });
       }
     }
 
-    await runSeed(directDb);
+    if (counts.users === 0 || counts.courses === 0) {
+      const sqlPath = join(process.cwd(), "prisma", "supabase-init.sql");
+      const sql = readFileSync(sqlPath, "utf8");
+      const statements = splitSqlStatements(sql);
 
-    const users = await prisma.user.count();
-    const lectures = await prisma.lecture.count();
+      for (const statement of statements) {
+        try {
+          await directDb.$executeRawUnsafe(statement);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          if (
+            msg.includes("already exists") ||
+            msg.includes("duplicate") ||
+            msg.includes("42710")
+          ) {
+            continue;
+          }
+          throw err;
+        }
+      }
+    }
+
+    if (counts.users === 0) {
+      await runSeed(directDb);
+    } else if (counts.enrollments === 0) {
+      await repairAllStudentEnrollments(directDb);
+    }
+
+    counts = await getDbCounts(directDb);
 
     return NextResponse.json({
       ok: true,
       message: "Database initialized with demo data.",
-      users,
-      lectures,
+      ...counts,
       logins: ["student / student123", "teacher / teacher123"],
       joinCode: "DSA26X",
     });

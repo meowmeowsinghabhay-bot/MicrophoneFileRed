@@ -63,17 +63,37 @@ export default function LectureViewerPage() {
   const [catchUpFrom, setCatchUpFrom] = useState("0:00");
   const [bookmarkLabel, setBookmarkLabel] = useState("");
   const [bookmarkMsg, setBookmarkMsg] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    if (!user) { router.replace("/"); return; }
+    if (!user) {
+      router.replace("/login/student");
+      return;
+    }
+    if (user.id === "demo") {
+      router.replace("/login/student");
+      return;
+    }
+
+    setLoadError("");
     Promise.all([
-      fetch(`/api/lectures/${params.id}`).then((r) => r.json()),
+      fetch(`/api/lectures/${params.id}`),
       user.role === "student"
-        ? fetch(`/api/lectures/${params.id}/bookmarks?studentId=${user.id}`).then((r) => r.json())
-        : Promise.resolve({ bookmarks: [] }),
-    ]).then(([lecData, bmData]) => {
+        ? fetch(`/api/lectures/${params.id}/bookmarks?studentId=${user.id}`)
+        : Promise.resolve({ ok: true, json: async () => ({ bookmarks: [] }) }),
+    ]).then(async ([lecRes, bmRes]) => {
+      const lecData = await lecRes.json();
+      const bmData = await bmRes.json();
+
+      if (!lecRes.ok) {
+        setLoadError(lecData.setupUrl ? "Database not initialized." : lecData.error || "Failed to load lecture");
+        return;
+      }
+
       if (lecData.lecture) setLecture(lecData.lecture);
       setBookmarks(bmData.bookmarks || []);
+    }).catch(() => {
+      setLoadError("Failed to load lecture");
     });
   }, [params.id, user, router]);
 
@@ -129,7 +149,24 @@ export default function LectureViewerPage() {
     setBookmarkMsg("Marked as complete");
   };
 
-  if (!user || !lecture) {
+  if (!user) {
+    return <div className="flex min-h-screen items-center justify-center bg-app text-app-muted">Redirecting…</div>;
+  }
+
+  if (loadError) {
+    return (
+      <AppShell role={user.role === "teacher" ? "Teacher" : "Student"} displayName={user.displayName} readableId={user.readableId}>
+        <div className="mx-auto max-w-lg px-4 py-16 text-center">
+          <p className="text-red-600 dark:text-red-400">{loadError}</p>
+          <Link href={user.role === "teacher" ? "/teacher/dashboard" : "/student/dashboard"} className="mt-4 inline-block text-brand-600">
+            ← Back to dashboard
+          </Link>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!lecture) {
     return <div className="flex min-h-screen items-center justify-center bg-app text-app-muted">Loading lecture…</div>;
   }
 

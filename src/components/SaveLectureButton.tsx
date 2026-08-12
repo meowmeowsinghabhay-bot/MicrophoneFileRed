@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLectureStore } from "@/store/lectureStore";
 import { useAuthStore } from "@/store/authStore";
+import { usePreferencesStore } from "@/store/preferencesStore";
 import { LANGUAGE_NAMES } from "@/lib/constants";
 import { snapshotToApiPayload } from "@/lib/lecture-api";
 import {
@@ -21,7 +22,7 @@ export default function SaveLectureButton() {
   const fullTranscript = useLectureStore((s) => s.fullTranscript);
   const segments = useLectureStore((s) => s.segments);
   const getLectureSnapshot = useLectureStore((s) => s.getLectureSnapshot);
-  const selectedCourseId = useLectureStore((s) => s.selectedCourseId);
+  const selectedCourseId = usePreferencesStore((s) => s.selectedCourseId);
   const user = useAuthStore((s) => s.user);
 
   if (!fullTranscript && segments.length === 0) return null;

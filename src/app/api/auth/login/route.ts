@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { handleRouteError } from "@/lib/handle-route";
+import { ensureStudentEnrollments } from "@/lib/ensure-enrollments";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,6 +13,10 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    if (user.role === "student") {
+      await ensureStudentEnrollments(user.id);
     }
 
     return NextResponse.json({

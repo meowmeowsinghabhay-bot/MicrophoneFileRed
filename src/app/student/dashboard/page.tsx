@@ -66,6 +66,11 @@ export default function StudentDashboard() {
       router.replace("/login/student");
       return;
     }
+    if (user.id === "demo") {
+      logout();
+      router.replace("/login/student");
+      return;
+    }
     load();
   }, [user, router]);
 

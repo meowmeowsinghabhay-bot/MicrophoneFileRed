@@ -1,4 +1,9 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run vercel-build"
+  "buildCommand": "npm run vercel-build",
+  "functions": {
+    "src/app/api/setup-database/route.ts": {
+      "maxDuration": 60
+    }
+  }
 }

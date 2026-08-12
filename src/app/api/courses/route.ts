@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { generateJoinCode } from "@/lib/terminology";
+import { handleRouteError } from "@/lib/handle-route";
 
 export async function GET(request: NextRequest) {
-  const teacherId = request.nextUrl.searchParams.get("teacherId");
-  if (!teacherId) {
-    return NextResponse.json({ error: "teacherId required" }, { status: 400 });
+  try {
+    const teacherId = request.nextUrl.searchParams.get("teacherId");
+    if (!teacherId) {
+      return NextResponse.json({ error: "teacherId required" }, { status: 400 });
+    }
+
+    const courses = await prisma.course.findMany({
+      where: { teacherId },
+      include: {
+        _count: { select: { lectures: true, enrollments: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ courses });
+  } catch (error) {
+    return handleRouteError(error, "Courses GET");
   }
-
-  const courses = await prisma.course.findMany({
-    where: { teacherId },
-    include: {
-      _count: { select: { lectures: true, enrollments: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json({ courses });
 }
 
 export async function POST(request: NextRequest) {
@@ -44,7 +49,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ course });
   } catch (error) {
-    console.error("Create course error:", error);
-    return NextResponse.json({ error: "Failed to create course" }, { status: 500 });
+    return handleRouteError(error, "Courses POST");
   }
 }

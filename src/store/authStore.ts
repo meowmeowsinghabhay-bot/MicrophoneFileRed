@@ -11,15 +11,22 @@ export interface AuthUser {
   displayName: string;
 }
 
+export interface LoginResult {
+  success: boolean;
+  error?: string;
+  setupUrl?: string;
+}
+
 interface AuthState {
   user: AuthUser | null;
-  login: (username: string, password: string, role: UserRole) => Promise<boolean>;
+  login: (username: string, password: string, role: UserRole) => Promise<LoginResult>;
   logout: () => void;
+  clearStaleSession: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       login: async (username, password, role) => {
         try {
@@ -28,31 +35,47 @@ export const useAuthStore = create<AuthState>()(
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username, password, role }),
           });
-          if (!res.ok) return false;
-          const data = await res.json();
-          set({ user: data.user });
-          return true;
-        } catch {
-          const fallback =
-            (role === "student" && username === "student" && password === "student123") ||
-            (role === "teacher" && username === "teacher" && password === "teacher123");
-          if (fallback) {
-            set({
-              user: {
-                id: "demo",
-                readableId: role === "teacher" ? "TCH-2026-00001" : "STU-2026-00001",
-                username,
-                role,
-                displayName: role === "teacher" ? "Dr. Sharma" : "Priya Patel",
-              },
-            });
-            return true;
+          const data = await res.json().catch(() => ({}));
+
+          if (!res.ok) {
+            return {
+              success: false,
+              error: data.error || "Login failed",
+              setupUrl: data.setupUrl,
+            };
           }
-          return false;
+
+          if (!data.user?.id || data.user.id === "demo") {
+            return { success: false, error: "Invalid server response" };
+          }
+
+          set({ user: data.user });
+          return { success: true };
+        } catch {
+          return {
+            success: false,
+            error: "Cannot reach server. Check your connection and try again.",
+          };
         }
       },
       logout: () => set({ user: null }),
+      clearStaleSession: () => {
+        const user = get().user;
+        if (!user || user.id === "demo") {
+          set({ user: null });
+        }
+      },
     }),
-    { name: "smartclass-auth" }
+    {
+      name: "smartclass-auth",
+      version: 2,
+      migrate: (persisted) => {
+        const state = persisted as { user?: AuthUser | null };
+        if (state.user?.id === "demo") {
+          state.user = null;
+        }
+        return state as AuthState;
+      },
+    }
   )
 );

@@ -48,7 +48,13 @@ export default function LiveSessionPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) router.replace("/");
+    if (!user) {
+      router.replace("/login/student?returnTo=/session/live");
+      return;
+    }
+    if (user.id === "demo") {
+      router.replace("/login/student?returnTo=/session/live");
+    }
   }, [user, router]);
 
   if (!user) return null;

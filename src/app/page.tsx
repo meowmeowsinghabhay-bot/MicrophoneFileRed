@@ -83,9 +83,9 @@ export default function HomePage() {
               <Link href="/login/student" className="btn-primary">
                 Get started
               </Link>
-              <Link href="/session/live" className="btn-secondary">
-                Try live session
-              </Link>
+            <Link href="/login/student?returnTo=/session/live" className="btn-secondary">
+              Try live session
+            </Link>
             </div>
           </div>
 

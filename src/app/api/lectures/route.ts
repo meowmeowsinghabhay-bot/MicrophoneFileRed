@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { handleRouteError } from "@/lib/handle-route";
 
 export async function GET(request: NextRequest) {
-  const courseId = request.nextUrl.searchParams.get("courseId");
-  const publishedOnly = request.nextUrl.searchParams.get("published") === "true";
+  try {
+    const courseId = request.nextUrl.searchParams.get("courseId");
+    const publishedOnly = request.nextUrl.searchParams.get("published") === "true";
 
-  const lectures = await prisma.lecture.findMany({
-    where: {
-      ...(courseId ? { courseId } : {}),
-      ...(publishedOnly ? { published: true } : {}),
-    },
-    include: { _count: { select: { segments: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+    const lectures = await prisma.lecture.findMany({
+      where: {
+        ...(courseId ? { courseId } : {}),
+        ...(publishedOnly ? { published: true } : {}),
+      },
+      include: { _count: { select: { segments: true } } },
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json({ lectures });
+    return NextResponse.json({ lectures });
+  } catch (error) {
+    return handleRouteError(error, "Lectures GET");
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -59,7 +64,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ lecture });
   } catch (error) {
-    console.error("Create lecture error:", error);
-    return NextResponse.json({ error: "Failed to save lecture" }, { status: 500 });
+    return handleRouteError(error, "Lectures POST");
   }
 }

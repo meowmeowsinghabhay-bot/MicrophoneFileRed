@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  readableId  String   @unique
+  username    String   @unique
+  password    String
+  role        String   // "teacher" | "student"
+  displayName String
+  createdAt   DateTime @default(now())
+
+  coursesTeaching Course[]     @relation("TeacherCourses")
+  enrollments     Enrollment[]
+  bookmarks       Bookmark[]
+  quizAttempts    QuizAttempt[]
+  progress        LectureProgress[]
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  name        String
+  code        String
+  semester    String
+  description String?
+  joinCode    String   @unique
+  teacherId   String
+  teacher     User     @relation("TeacherCourses", fields: [teacherId], references: [id])
+  createdAt   DateTime @default(now())
+
+  lectures    Lecture[]
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  studentId String
+  courseId  String
+  joinedAt  DateTime @default(now())
+  student   User     @relation(fields: [studentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+
+  @@unique([studentId, courseId])
+}
+
+model Lecture {
+  id            String   @id @default(uuid())
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id])
+  title         String
+  description   String?
+  published     Boolean  @default(false)
+  isDemo        Boolean  @default(false)
+  durationMs    Int?
+  createdAt     DateTime @default(now())
+
+  segments      TranscriptSegment[]
+  contentBlocks ContentBlock[]
+  bookmarks     Bookmark[]
+  quizAttempts  QuizAttempt[]
+  progress      LectureProgress[]
+}
+
+model TranscriptSegment {
+  id             String  @id @default(uuid())
+  lectureId      String
+  lecture        Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  text           String
+  translatedText String?
+  startMs        Int
+  endMs          Int
+  isImportant    Boolean @default(false)
+  isManualFlag   Boolean @default(false)
+  orderIndex     Int
+}
+
+model ContentBlock {
+  id        String @id @default(uuid())
+  lectureId String
+  lecture   Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+  type      String // notes | mindmap | revision | formulas | summary
+  content   String
+  status    String @default("AI Generated") // AI Generated | Teacher Edited | Teacher Approved
+  language  String @default("en")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  studentId String
+  lectureId String
+  segmentId String?
+  label     String
+  timestampMs Int?
+  createdAt DateTime @default(now())
+  student   User     @relation(fields: [studentId], references: [id])
+  lecture   Lecture  @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+}
+
+model QuizAttempt {
+  id        String   @id @default(uuid())
+  studentId String
+  lectureId String
+  score     Float
+  total     Int
+  answers   String   // JSON
+  createdAt DateTime @default(now())
+  student   User     @relation(fields: [studentId], references: [id])
+  lecture   Lecture  @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+}
+
+model LectureProgress {
+  id           String   @id @default(uuid())
+  studentId    String
+  lectureId    String
+  lastPositionMs Int    @default(0)
+  completed    Boolean  @default(false)
+  lastActive   DateTime @default(now())
+  student      User     @relation(fields: [studentId], references: [id])
+  lecture      Lecture  @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, lectureId])
+}
+
+model IdCounter {
+  prefix String @id
+  value  Int    @default(0)
+}

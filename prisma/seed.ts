@@ -1,6 +1,17 @@
 import { PrismaClient } from "@prisma/client";
+import { getDatabaseUrl, getDirectUrl } from "../src/lib/database-url";
 
-const prisma = new PrismaClient();
+function createSeedClient(): PrismaClient {
+  const url = getDirectUrl().startsWith("postgres") ? getDirectUrl() : getDatabaseUrl();
+  if (!url.startsWith("postgres")) {
+    return new PrismaClient();
+  }
+  return new PrismaClient({
+    datasources: { db: { url } },
+  });
+}
+
+let prisma = createSeedClient();
 
 const HI: Record<string, string> = {
   "Welcome to today's lecture on binary search trees.":
@@ -87,7 +98,8 @@ async function createLecture(
   return lecture;
 }
 
-export async function runSeed() {
+export async function runSeed(client?: PrismaClient) {
+  prisma = client ?? createSeedClient();
   await prisma.quizAttempt.deleteMany();
   await prisma.bookmark.deleteMany();
   await prisma.lectureProgress.deleteMany();

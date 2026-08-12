@@ -32,16 +32,28 @@ export default function StudentDashboard() {
   const [recentProgress, setRecentProgress] = useState<{ lectureId: string; title: string; course: string; completed: boolean; progressPct: number }[]>([]);
   const [joinCode, setJoinCode] = useState("");
   const [joinError, setJoinError] = useState("");
+  const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     if (!user) return;
+    setLoadError("");
     const [coursesRes, statsRes] = await Promise.all([
       fetch(`/api/courses/join?studentId=${user.id}`),
       fetch(`/api/students/${user.id}/dashboard`),
     ]);
     const coursesData = await coursesRes.json();
     const statsData = await statsRes.json();
+    if (!coursesRes.ok || !statsRes.ok) {
+      const setupUrl = coursesData.setupUrl || statsData.setupUrl;
+      setLoadError(
+        setupUrl
+          ? "Database not initialized. Ask your admin to run the setup URL once."
+          : coursesData.error || statsData.error || "Failed to load dashboard"
+      );
+      setLoading(false);
+      return;
+    }
     setCourses(coursesData.courses || []);
     setStats(statsData.stats);
     setContinueLearning(statsData.continueLearning);
@@ -90,6 +102,12 @@ export default function StudentDashboard() {
             🎙️ Join Live Session
           </Link>
         </div>
+
+        {loadError && (
+          <div className="mb-8 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-200">
+            {loadError}
+          </div>
+        )}
 
         {stats && (
           <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

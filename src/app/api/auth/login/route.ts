@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { handleRouteError } from "@/lib/handle-route";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Auth error:", error);
-    return NextResponse.json({ error: "Auth failed" }, { status: 500 });
+    return handleRouteError(error, "Auth login");
   }
 }

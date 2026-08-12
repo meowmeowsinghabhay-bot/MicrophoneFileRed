@@ -1,145 +1,137 @@
-# Classroom Assistant
+# SmartClass AI
 
-An AI-powered multilingual classroom assistant that turns live lectures into personalized, understandable learning material — in real time and after class. Students get live translated captions during the lecture, then structured notes, mindmaps, exam prep, and an interactive Q&A chatbot — all from a single lecture recording.
+SmartClass AI turns live classroom lectures into personalized, multilingual learning material — with a full **teacher portal**, **student portal**, and a **hybrid architecture** where code handles deterministic work and AI handles understanding.
 
-## Features
+> **Live transcription + translation is preserved as-is.** The Web Speech API pipeline and translation hook logic were not refactored — only restyled to match the design system.
 
-- **Live Transcription** — Real-time speech-to-text using the browser's Web Speech API
-- **Live Translation** — Each transcribed segment translated into Hindi, Bangla, Arabic, or English
-- **Board Capture** — Snap or upload board/slide images; AI extracts text, diagrams, and LaTeX formulas
-- **Structured Class Notes** — Full transcript organized into headings, bullets, and preserved technical terms
-- **Simplified Explanations** — Toggle "explain like I'm new" per section
-- **Mindmap** — Auto-generated hierarchical topic diagram rendered with Markmap
-- **Timeline** — Topic segments with approximate timestamps in a vertical timeline
-- **Important Detection** — Live keyword spotting + post-class AI deep scan for exam-relevant content
-- **Exam Questions** — AI-generated short-answer and long-answer practice questions
-- **Revision Notes** — One-page compressed summary for quick pre-exam review
-- **Explain-Back Mode** — Student explains a concept; AI scores correctness and gives specific feedback
-- **Ask-AI Chatbot** — Free-form Q&A grounded only in this lecture's content
+## Quick Start
 
-## Architecture
-
-```
-Mic ──► Web Speech API ──► live English transcript (client-side)
-                              │
-                              ├─► [live] chunk → LLM translate → live captions in target language
-                              │
-                              └─► [buffered] full transcript stored for after-class processing
-
-Camera/upload ──► board/slide snapshot ──► LLM (vision) ──► text + LaTeX description, timestamped
-
-After class, one combined pass over (full transcript + all snapshot descriptions):
-  LLM ──► structured notes (target language)
-  LLM ──► mindmap outline (markdown) ──► Markmap renders it
-  LLM ──► timeline segments ──► timeline UI
-  LLM ──► important-question flags (merged with live keyword-spotted flags)
-  LLM ──► exam-style questions
-  LLM ──► revision short notes
-
-On demand:
-  Student explanation + notes ──► LLM ──► evaluation + feedback
-  Student question + transcript/notes ──► LLM ──► answer
+```bash
+npm install
+npm run db:setup      # creates SQLite DB + seeds demo data
+npm run dev
 ```
 
-## Technology Choices
+Open **http://localhost:3000** in **Chrome or Edge**.
 
-| Need | Use | Why this, not the alternative |
-|---|---|---|
-| Live speech-to-text | **Web Speech API** (browser-native, Chrome/Edge) | Zero install, zero server cost, zero model to host. Alternative (Vosk-in-browser) needs a model download and WASM setup — more moving parts for the same live-captioning result, not worth it for a prototype where reliability matters more than offline capability. |
-| Translation, notes, mindmap outline, timeline extraction, important-question flagging, exam questions, revision notes, explain-back grading, Q&A chat | **OpenAI API** (GPT-4o / GPT-4o-mini, one provider everywhere) | A single API key replaces a self-hosted vision-language model (e.g. Qwen2.5-VL via Ollama). Self-hosting needs a GPU or a Colab tunnel kept alive during judging — a real risk of breaking mid-demo. A hosted LLM API is one dependency, one key, no GPU, and just as capable for a single-lecture scope. |
-| Board/diagram/formula reading | **Same LLM API's vision input** (send the snapshot image directly) | Avoids a separate OCR library (e.g. Tesseract) plus a separate vision model. One model call does OCR + diagram description + formula transcription together, so there's one prompt to tune instead of three pipelines to keep in sync. |
-| Mindmap rendering | **Markmap** (renders a mindmap straight from a markdown outline, client-side, no backend) | The LLM already needs to output a markdown-style outline for the notes; feeding that same structure to Markmap means no extra "generate mindmap JSON" step and no diagramming library to wire up. |
-| Timeline rendering | Plain HTML/CSS vertical timeline | A lecture has one linear timeline with maybe 5–10 segments — a styled div list is faster to build and just as clear as a charting library for this scale. |
-| Lecture memory for Q&A / explain-back grading | **No vector database.** Pass the full transcript + notes directly in the LLM prompt each time. | A single lecture's transcript comfortably fits inside one LLM context window. A vector DB (ChromaDB) with embeddings and retrieval is solving a scale problem (many documents) that doesn't exist yet at "one lecture." Adding it is one more service to deploy and debug for zero benefit at this scope. |
-| Text-to-speech | **Skipped** (not core to the problem) | Students are reading translated notes, not primarily listening. Browser TTS is free and can be added later if needed. |
-| App structure | **One Next.js app** — React frontend + API routes as the backend | Removes the "separate frontend + separate backend + connect them" step entirely. API routes call the LLM API server-side (keeping the API key off the client). |
-| Deployment | **Vercel** | Push to GitHub, import into Vercel, set one environment variable, deploy. No Docker, no GPU box, no server to keep alive during judging. |
+### Demo Logins
+
+| Role | Username | Password | ID |
+|------|----------|----------|-----|
+| Student | `student` | `student123` | STU-2026-00001 |
+| Teacher | `teacher` | `teacher123` | TCH-2026-00001 |
+
+**Demo join code:** `DSA26X`
+
+## Portals
+
+| Route | Who | What |
+|-------|-----|------|
+| `/` | Everyone | Homepage |
+| `/login/student` | Student | Sign in |
+| `/login/teacher` | Teacher | Sign in |
+| `/student/dashboard` | Student | Courses, join code, continue learning |
+| `/teacher/dashboard` | Teacher | Analytics, roster, create courses |
+| `/session/live` | Both | **Live session** (transcription + translation + AI tabs) |
+| `/lecture/[id]` | Student | Lecture viewer (transcript, notes, mindmap, catch-up) |
+| `/teacher/lectures/[id]/review` | Teacher | Edit/approve AI content |
+
+## Teacher Role
+
+Teachers can:
+- Create courses with **code-generated join codes** (not AI)
+- Record live lectures via `/session/live`
+- Review AI notes/mindmap/revision with status: `AI Generated` → `Teacher Edited` → `Teacher Approved`
+- Publish/unpublish lectures (enforced server-side — students only see `published: true`)
+- View student roster with real quiz scores and completion counts
+- See analytics computed from DB (not fabricated)
+
+## AI vs. Code (Hybrid Architecture)
+
+| Feature | Method | Why |
+|---------|--------|-----|
+| Live transcription | **Code** — Web Speech API | Browser-native, zero cost |
+| Live important detection | **Code** — keyword/regex on segments | Instant, zero API cost |
+| Timeline segments | **Code** — pause heuristic on timestamps | LLM doesn't have real timestamps |
+| Search in lecture | **Code** — string match / FTS-style | Single lecture, no embeddings needed |
+| Bookmarks, progress, quiz scoring | **Code** — DB reads/writes | Pure arithmetic |
+| Join codes, readable IDs | **Code** — random/counter generation | Deterministic, free |
+| Catch-up / what did I miss | **Code** — timestamp filter | No AI needed to know "after minute 18" |
+| Terminology preservation | **Code** — lookup table | Reliable vs. prompt-only |
+| Live translation | **AI** — LLM (+ free MyMemory fallback) | Requires language understanding |
+| Structured notes | **AI** — LLM | Generation task |
+| Mindmap outline | **AI** — LLM | Topic hierarchy inference |
+| Board/diagram reading | **AI** — vision (+ OCR fallback) | Requires vision |
+| Exam questions, revision | **AI** — LLM | Creative generation |
+| Explain-back evaluation | **AI** — LLM | Compare student explanation |
+| Ask-the-lecture chat | **AI** — LLM | Grounded Q&A |
+| Important deep scan (optional) | **AI** — LLM secondary pass | Catches what keywords missed |
+
+All AI calls route through **`src/lib/llm-service.ts`** (`LLMService` class). Switch provider/model in one file.
+
+## Live Pipeline (Untouched Logic)
+
+These files are **black boxes** — do not refactor internal logic:
+
+- `src/hooks/useSpeechRecognition.ts` — Web Speech API, restart-on-end, mic warmup
+- `src/hooks/useLiveTranslation.ts` — batched segment → `/api/translate` flow
+- `src/app/api/translate/route.ts` — translation API
+
+Only `src/components/LiveCaptions.tsx` styling was updated.
+
+## Technology
+
+| Layer | Choice |
+|-------|--------|
+| Frontend | Next.js 16, React, TypeScript, Tailwind |
+| Backend | Next.js API routes |
+| Database | SQLite (dev) / PostgreSQL (prod via `DATABASE_URL`) |
+| ORM | Prisma 5 |
+| Live STT | Web Speech API (Chrome/Edge) |
+| AI | OpenAI GPT-4o / GPT-4o-mini via `LLMService` |
+| Mindmap | Markmap (client-side) |
+| OCR fallback | Tesseract.js |
+| Translation fallback | MyMemory free API |
 
 ## Deployment
 
-### Prerequisites
-
-- Node.js 18+ installed
-- An [OpenAI API key](https://platform.openai.com/api-keys)
-- **Chrome or Edge browser** (required for Web Speech API)
-
-### Local Development
-
-1. **Clone the repo**
-   ```bash
-   git clone <your-repo-url>
-   cd TeamRedSharksD3
+1. Clone repo, `npm install`
+2. Set environment variables:
    ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
+   DATABASE_URL="file:./dev.db"          # or postgresql://... for production
+   OPENAI_API_KEY=sk-...                 # optional — fallbacks work without it
    ```
+3. `npm run db:setup`
+4. `npm run build && npm start`
+5. Deploy to **Vercel** — add env vars, use **Supabase/Neon/Railway** for managed Postgres in production
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Open `.env` and set your API key:
-   ```
-   OPENAI_API_KEY=sk-your-key-here
-   ```
-
-4. **Run locally**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:3000](http://localhost:3000) in **Chrome or Edge**.
-
-5. **Test the core loop**
-   - Click "Start Lecture"
-   - Allow microphone access when prompted
-   - Speak in English — you should see live transcription
-   - Select a target language — translated captions appear below the English text
-
-### Deploy to Vercel
-
-1. Push your code to GitHub
-2. Go to [vercel.com](https://vercel.com) and import the repository
-3. In the Vercel dashboard, go to **Settings → Environment Variables**
-4. Add: `OPENAI_API_KEY` = your API key
-5. Click **Deploy**
-6. Open the deployed URL in **Chrome or Edge**
-
-## Browser Requirements
-
-**Use Chrome or Edge.** The Web Speech API (`SpeechRecognition`) is not supported in Firefox and has limited/unreliable support in Safari. If a judge opens the app in Safari and transcription doesn't work, that's a browser limitation — not a bug.
+For PostgreSQL production, change `provider` in `prisma/schema.prisma` to `postgresql` and run `npx prisma db push`.
 
 ## Known Limitations
 
-- **English input only** — Live transcription works best with English speech. The Web Speech API is configured for `en-US`.
-- **Translation lag** — Live translation depends on API latency. If translation falls behind, English captions continue to display (graceful degradation).
-- **Vision is on-demand** — Board snapshot analysis requires a manual capture or upload; it is not continuous video analysis.
-- **Single-lecture scope** — No cross-lecture memory. Each session is independent; refreshing the page clears all data.
-- **No offline mode** — Both transcription (browser API) and all AI features require an internet connection.
-- **API costs** — Each LLM call (translation, notes, mindmap, etc.) uses the OpenAI API and incurs per-token costs.
+- Live transcription: English input, Chrome/Edge only
+- OpenAI credits required for full AI features; translation/board have free fallbacks
+- Quiz/explain-back in lecture viewer require live session data in store
+- Demo mode uses seeded SQLite data — no API keys needed to explore UI
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── api/          # Server-side API routes (LLM calls)
-│   ├── globals.css
-│   ├── layout.tsx
-│   └── page.tsx      # Main app with tab navigation
-├── components/
-│   ├── tabs/         # One component per feature tab
-│   ├── ControlPanel.tsx
-│   ├── LanguageSelector.tsx
-│   └── LiveCaptions.tsx
+│   ├── api/              # REST API routes
+│   ├── student/          # Student portal
+│   ├── teacher/          # Teacher portal
+│   ├── session/live/     # Live recording session
+│   └── lecture/[id]/     # Lecture viewer
 ├── hooks/
-│   ├── useSpeechRecognition.ts
-│   └── useLiveTranslation.ts
+│   ├── useSpeechRecognition.ts  # ⚠️ DO NOT MODIFY LOGIC
+│   └── useLiveTranslation.ts    # ⚠️ DO NOT MODIFY LOGIC
 ├── lib/
-│   ├── llm.ts        # OpenAI client wrapper
-│   ├── constants.ts
-│   └── types.ts
-└── store/
-    └── lectureStore.ts  # Zustand state management
+│   ├── llm-service.ts    # Single AI abstraction
+│   ├── computed.ts       # Code-computed features
+│   ├── terminology.ts    # Term preservation table
+│   └── db.ts             # Prisma client
+└── components/
+    └── LiveCaptions.tsx  # Styled shell only
 ```

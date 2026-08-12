@@ -60,12 +60,18 @@ export type TabId = (typeof LIVE_TABS)[number]["id"];
 export const LECTURE_VIEWER_TABS = [
   { id: "transcript", label: "Transcript" },
   { id: "notes", label: "Notes" },
+  { id: "simplified", label: "Simplified" },
   { id: "formulas", label: "Formulas" },
+  { id: "concepts", label: "Concepts" },
+  { id: "board", label: "Board" },
   { id: "mindmap", label: "Mindmap" },
+  { id: "important", label: "Important" },
+  { id: "revision", label: "Revision" },
   { id: "quiz", label: "Quiz" },
   { id: "explain", label: "Explain Back" },
   { id: "chat", label: "Ask AI" },
   { id: "catchup", label: "Catch Up" },
+  { id: "bookmarks", label: "Bookmarks" },
 ] as const;
 
 export type ViewerTabId = (typeof LECTURE_VIEWER_TABS)[number]["id"];

@@ -113,13 +113,29 @@ Copy the **connection string** (`postgresql://…`).
 | `DATABASE_URL` | `postgresql://…` (your Postgres URL) |
 | `OPENAI_API_KEY` | Optional — enables full AI; fallbacks work without it |
 
-Vercel runs `npm run vercel-build`, which:
-- Switches Prisma to PostgreSQL for the build (local SQLite is unchanged in git)
-- Runs `prisma db push` + seed (demo logins & lectures)
-- Builds the Next.js app
+Vercel runs `npm run vercel-build` (~2–3 min). **Database setup is NOT run on Vercel** (avoids 15+ min hangs).
+
+**One-time before first deploy** — push schema + seed from your PC:
+
+```powershell
+$env:DIRECT_URL="postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:5432/postgres"
+npm run db:push:supabase
+```
+
+Then set only these on **Vercel** (Settings → Environment Variables):
+
+| Variable | Value |
+|----------|--------|
+| `DATABASE_URL` | Supabase **Transaction pooler** (port **6543**) + `?pgbouncer=true` |
+| `DIRECT_URL` | Supabase **Session pooler** (port **5432**, `*.pooler.supabase.com`) |
+| `OPENAI_API_KEY` | Optional |
+
+Do **not** use `db.xxx.supabase.co:5432` — it causes P1001 / long hangs.
+
+**Do not set** `RUN_DB_SETUP` unless you want db push during build (not recommended).
 
 ### 4. Deploy
-Click Deploy. After build, open the URL and log in with `student/student123` or `teacher/teacher123`.
+Cancel any stuck deployment, push this code, redeploy. Should finish in ~3 minutes.
 
 ### Local vs production
 

@@ -10,12 +10,15 @@ import SpeakButton from "@/components/SpeakButton";
 /** Visual shell only — speech + translation hooks are untouched black boxes. */
 export default function LiveCaptions() {
   const segments = useLectureStore((s) => s.segments);
+  const speechLanguage = useLectureStore((s) => s.speechLanguage);
   const targetLanguage = useLectureStore((s) => s.targetLanguage);
   const isRecording = useLectureStore((s) => s.isRecording);
   const translationError = useLectureStore((s) => s.translationError);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { isSupported, error, isListening } = useSpeechRecognition();
   useLiveTranslation();
+
+  const showTranslation = speechLanguage !== targetLanguage;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -78,7 +81,7 @@ export default function LiveCaptions() {
           <div key={segment.id} className="group border-b border-app pb-3 last:border-0">
             <div className="mb-1 flex flex-wrap items-center gap-2 sm:opacity-0 sm:transition sm:group-hover:opacity-100">
               <SpeakButton text={segment.text} langCode="en" label="Read English aloud" />
-              {targetLanguage !== "en" && segment.translatedText && (
+              {showTranslation && segment.translatedText && (
                 <SpeakButton
                   text={segment.translatedText.replace(/^\[[A-Za-z]{2}\]\s*/, "")}
                   langCode={targetLanguage}
@@ -96,7 +99,7 @@ export default function LiveCaptions() {
               )}
               {segment.text}
             </p>
-            {targetLanguage !== "en" && (
+            {showTranslation && (
               <p
                 className={`mt-1 text-base leading-relaxed text-brand-600 dark:text-brand-400 ${!segment.isFinal ? "italic opacity-60" : ""}`}
               >

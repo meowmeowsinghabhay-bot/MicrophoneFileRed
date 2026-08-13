@@ -1,16 +1,25 @@
 import { LanguageCode } from "./constants";
 
-const TARGET_CODES: Partial<Record<LanguageCode, string>> = {
-  hi: "hi", bn: "bn", ar: "ar", ta: "ta", te: "te", mr: "mr", es: "es", fr: "fr",
+const LOCALE_CODES: Partial<Record<LanguageCode, string>> = {
+  en: "en",
+  hi: "hi",
+  bn: "bn",
+  ar: "ar",
+  ta: "ta",
+  te: "te",
+  mr: "mr",
+  es: "es",
+  fr: "fr",
 };
 
 async function translateWithMyMemory(
   text: string,
+  source: string,
   target: string
 ): Promise<string> {
   const url = new URL("https://api.mymemory.translated.net/get");
   url.searchParams.set("q", text);
-  url.searchParams.set("langpair", `en|${target}`);
+  url.searchParams.set("langpair", `${source}|${target}`);
 
   const response = await fetch(url.toString());
   if (!response.ok) throw new Error("MyMemory request failed");
@@ -24,14 +33,16 @@ async function translateWithMyMemory(
 
 export async function fallbackTranslate(
   texts: string[],
-  targetLanguage: LanguageCode
+  targetLanguage: LanguageCode,
+  sourceLanguage: LanguageCode = "en"
 ): Promise<string[] | null> {
-  const target = TARGET_CODES[targetLanguage];
-  if (!target) return null;
+  const target = LOCALE_CODES[targetLanguage];
+  const source = LOCALE_CODES[sourceLanguage];
+  if (!target || !source) return null;
 
   try {
     const results = await Promise.all(
-      texts.map((text) => translateWithMyMemory(text, target))
+      texts.map((text) => translateWithMyMemory(text, source, target))
     );
     return results;
   } catch {

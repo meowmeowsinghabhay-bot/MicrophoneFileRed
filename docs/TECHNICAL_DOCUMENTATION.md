@@ -15,7 +15,7 @@
 5. [Data Model & Persistence](#5-data-model--persistence)
 6. [Key Application Flows](#6-key-application-flows)
 7. [Deployment & Infrastructure](#7-deployment--infrastructure)
-8. [Security & Limitations (Honest Assessment)](#8-security--limitations-honest-assessment)
+8. [Security & Limitations (Honest Assessment)](#8-security--limitations-honest-assessment)                                     
 9. [Evaluation Q&A Bank](#9-evaluation-qa-bank)
 10. [Demo Script for Judges](#10-demo-script-for-judges)
 11. [Future Improvements](#11-future-improvements)

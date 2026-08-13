@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLectureStore } from "@/store/lectureStore";
+import { getSpeechRecognitionLocale } from "@/lib/constants";
 
 interface SpeechRecognitionEvent {
   results: SpeechRecognitionResultList;
@@ -54,6 +55,8 @@ function getErrorMessage(error: string): string {
       return "No microphone found. Check that a mic is connected and enabled in Windows settings.";
     case "network":
       return "Speech recognition needs an internet connection (Chrome uses Google's servers).";
+    case "language-not-supported":
+      return "This speech language is not supported in your browser. Try English or another language.";
     default:
       return `Speech recognition error: ${error}`;
   }
@@ -67,7 +70,13 @@ export function useSpeechRecognition() {
   const micStreamRef = useRef<MediaStream | null>(null);
   const restartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRecording = useLectureStore((s) => s.isRecording);
+  const speechLanguage = useLectureStore((s) => s.speechLanguage);
+  const speechLanguageRef = useRef(speechLanguage);
   const addSegment = useLectureStore((s) => s.addSegment);
+
+  useEffect(() => {
+    speechLanguageRef.current = speechLanguage;
+  }, [speechLanguage]);
 
   useEffect(() => {
     const SpeechRecognitionAPI =
@@ -101,7 +110,7 @@ export function useSpeechRecognition() {
     const recognition = new SpeechRecognitionAPI();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = getSpeechRecognitionLocale(speechLanguageRef.current);
 
     recognition.onstart = () => setIsListening(true);
 

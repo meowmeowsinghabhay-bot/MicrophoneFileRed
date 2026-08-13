@@ -21,6 +21,7 @@ function generateId(): string {
 }
 
 interface LectureActions {
+  setSpeechLanguage: (lang: LanguageCode) => void;
   setTargetLanguage: (lang: LanguageCode) => void;
   startRecording: () => void;
   stopRecording: () => void;
@@ -51,6 +52,7 @@ interface LectureActions {
 
 const initialState: LectureState = {
   isRecording: false,
+  speechLanguage: "en",
   targetLanguage: "hi",
   segments: [],
   fullTranscript: "",
@@ -72,6 +74,18 @@ const initialState: LectureState = {
 
 export const useLectureStore = create<LectureState & LectureActions>((set, get) => ({
   ...initialState,
+
+  setSpeechLanguage: (lang) =>
+    set((state) => {
+      if (state.isRecording) return state;
+      return {
+        speechLanguage: lang,
+        segments: state.segments.map((s) => ({
+          ...s,
+          translatedText: undefined,
+        })),
+      };
+    }),
 
   setTargetLanguage: (lang) =>
     set((state) => ({
@@ -238,6 +252,7 @@ export const useLectureStore = create<LectureState & LectureActions>((set, get) 
   getLectureSnapshot: () => {
     const s = get();
     return {
+      speechLanguage: s.speechLanguage,
       targetLanguage: s.targetLanguage,
       segments: s.segments,
       fullTranscript: s.fullTranscript,

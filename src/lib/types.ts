@@ -54,6 +54,7 @@ export interface GlossaryTerm {
 
 export interface LectureState {
   isRecording: boolean;
+  speechLanguage: LanguageCode;
   targetLanguage: LanguageCode;
   segments: TranscriptSegment[];
   fullTranscript: string;

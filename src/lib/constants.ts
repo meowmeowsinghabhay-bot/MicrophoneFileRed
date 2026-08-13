@@ -19,6 +19,23 @@ export const LANGUAGE_NAMES: Record<LanguageCode, string> = Object.fromEntries(
   LANGUAGES.map((l) => [l.code, l.label])
 ) as Record<LanguageCode, string>;
 
+/** BCP-47 tags for Web Speech API (Chrome/Edge). Default English unchanged. */
+export const SPEECH_RECOGNITION_LOCALES: Record<LanguageCode, string> = {
+  en: "en-US",
+  hi: "hi-IN",
+  bn: "bn-IN",
+  ar: "ar-SA",
+  ta: "ta-IN",
+  te: "te-IN",
+  mr: "mr-IN",
+  es: "es-ES",
+  fr: "fr-FR",
+};
+
+export function getSpeechRecognitionLocale(code: LanguageCode): string {
+  return SPEECH_RECOGNITION_LOCALES[code] ?? "en-US";
+}
+
 export const LEARNING_LEVELS = [
   { id: "beginner", label: "Beginner", description: "Explain like I'm new" },
   { id: "standard", label: "Standard", description: "Normal lecture level" },

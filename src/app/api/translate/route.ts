@@ -9,19 +9,26 @@ import {
 } from "@/lib/learning-level";
 import { preserveTerminology } from "@/lib/terminology";
 
-function resolveLanguageCode(targetLanguage: string): LanguageCode | null {
+function resolveLanguageCode(name: string): LanguageCode | null {
   const match = LANGUAGES.find(
     (l) =>
-      l.label.toLowerCase() === targetLanguage.toLowerCase() ||
-      l.native === targetLanguage ||
-      l.code === targetLanguage
+      l.label.toLowerCase() === name.toLowerCase() ||
+      l.native === name ||
+      l.code === name
   );
   return match?.code ?? null;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { texts, text, targetLanguage, learningLevel } = await request.json();
+    const {
+      texts,
+      text,
+      sourceLanguage,
+      targetLanguage,
+      learningLevel,
+      preferFast,
+    } = await request.json();
 
     const items: string[] = Array.isArray(texts)
       ? texts.filter((t: string) => t?.trim())
@@ -36,7 +43,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (targetLanguage === "English") {
+    const sourceLabel =
+      typeof sourceLanguage === "string" && sourceLanguage.trim()
+        ? sourceLanguage.trim()
+        : "English";
+    const targetLabel = targetLanguage;
+
+    const sourceCode = resolveLanguageCode(sourceLabel) ?? "en";
+    const targetCode = resolveLanguageCode(targetLabel) ?? "en";
+
+    if (sourceCode === targetCode) {
       return NextResponse.json({
         translated: items[0],
         translations: items,
@@ -47,21 +63,34 @@ export async function POST(request: NextRequest) {
     let translations: string[] | null = null;
     let source: "openai" | "fallback" = "openai";
     const level = normalizeLearningLevel(learningLevel);
-    const langCode = resolveLanguageCode(targetLanguage);
+
+    if (preferFast) {
+      translations = await fallbackTranslate(items, targetCode, sourceCode);
+      if (translations) {
+        if (targetCode) {
+          translations = translations.map((t) => preserveTerminology(t, targetCode));
+        }
+        return NextResponse.json({
+          translated: translations[0],
+          translations,
+          source: "fallback",
+        });
+      }
+    }
 
     try {
       const numberedInput = items.map((t, i) => `${i + 1}. ${t}`).join("\n");
       const result = await callLLM(
-        `You are a real-time classroom caption translator. Translate each numbered line from English to ${targetLanguage}.
+        `You are a real-time classroom caption translator. Translate each numbered line from ${sourceLabel} to ${targetLabel}.
 Rules:
 - ${getTranslationLevelInstruction(level)}
 - Output ONLY a JSON array of translated strings, same length and order as input.
-- Use the native script for ${targetLanguage}.
+- Use the native script for ${targetLabel}.
 - Preserve formulas (e.g. O(log n)) and standard CS/math notation unchanged.
-- Do NOT repeat the English text.
+- Do NOT repeat the source text.
 Return nothing except the JSON array.`,
         numberedInput,
-        { maxTokens: 1024, temperature: 0.1 }
+        { maxTokens: preferFast ? 512 : 1024, temperature: 0.1 }
       );
 
       try {
@@ -80,18 +109,15 @@ Return nothing except the JSON array.`,
 
       if (!translations && items.length === 1) {
         const single = await callLLM(
-          `Translate this English text to ${targetLanguage}. Output ONLY the translation in native script: "${items[0]}"`,
+          `Translate this ${sourceLabel} text to ${targetLabel}. Output ONLY the translation in native script: "${items[0]}"`,
           items[0],
           { maxTokens: 256, temperature: 0.1 }
         );
         translations = [single.trim()];
       }
     } catch (openaiError) {
-      const langCode = resolveLanguageCode(targetLanguage);
-      if (langCode) {
-        translations = await fallbackTranslate(items, langCode);
-        source = "fallback";
-      }
+      translations = await fallbackTranslate(items, targetCode, sourceCode);
+      source = "fallback";
       if (!translations) {
         return NextResponse.json(
           { error: getTranslationErrorMessage(openaiError), code: "translation_failed" },
@@ -104,8 +130,8 @@ Return nothing except the JSON array.`,
       return NextResponse.json({ error: "Translation format mismatch" }, { status: 500 });
     }
 
-    if (langCode) {
-      translations = translations.map((t) => preserveTerminology(t, langCode));
+    if (targetCode) {
+      translations = translations.map((t) => preserveTerminology(t, targetCode));
     }
 
     return NextResponse.json({ translated: translations[0], translations, source });

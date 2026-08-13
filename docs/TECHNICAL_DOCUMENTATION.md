@@ -2,7 +2,7 @@
 
 > Complete reference for architecture decisions, technology choices, alternatives, and likely judge/interviewer questions.
 
-**Related:** [README](../README.md) · [Live Demo](https://microphone-file-red-two.vercel.app)
+**Related:** [README](../README.md) · [AI Features Guide](./AI_FEATURES.md) · [Live Demo](https://microphone-file-red-two.vercel.app)
 
 ---
 
@@ -19,6 +19,9 @@
 9. [Evaluation Q&A Bank](#9-evaluation-qa-bank)
 10. [Demo Script for Judges](#10-demo-script-for-judges)
 11. [Future Improvements](#11-future-improvements)
+
+> **AI feature deep dive:** See [AI_FEATURES.md](./AI_FEATURES.md) for per-feature APIs, USP, tab map, and judge Q&A.  
+> **IBM panel prep:** See [IBM_EVALUATION_QA.md](./IBM_EVALUATION_QA.md) for tough architecture, security, and watsonx migration questions.
 
 ---
 

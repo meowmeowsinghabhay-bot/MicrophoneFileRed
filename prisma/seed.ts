@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { getDatabaseUrl, getDirectUrl } from "../src/lib/database-url";
+import { seedTranslateToHindi } from "../src/lib/demo-translations";
 
 function createSeedClient(): PrismaClient {
   const url = getDirectUrl().startsWith("postgres") ? getDirectUrl() : getDatabaseUrl();
@@ -13,37 +14,8 @@ function createSeedClient(): PrismaClient {
 
 let prisma = createSeedClient();
 
-const HI: Record<string, string> = {
-  "Welcome to today's lecture on binary search trees.":
-    "बाइनरी सर्च टrees पर आज के व्याख्यान में आपका स्वागत है।",
-  "A binary search tree is a hierarchical data structure.":
-    "बाइनरी सर्च टree एक पदानुक्रमित डेटा संरचना है।",
-  "Each node has at most two children — left and right.":
-    "प्रत्येक नोड के अधिकतम दो बच्चे होते हैं — बाएँ और दाएँ।",
-  "This is important — remember the ordering property.":
-    "यह महत्वपूर्ण है — क्रमबद्धता गुण याद रखें।",
-  "In-order traversal gives sorted output.":
-    "इन-ऑर्डर ट्रैवर्सल sorted आउटपुट देता है।",
-  "The ordering property: left subtree values are less than the node.":
-    "क्रमबद्धता: बाएँ subtree के मान नोड से छोटे होते हैं।",
-  "Right subtree values are greater than the node.":
-    "दाएँ subtree के मान नोड से बड़े होते हैं।",
-  "Insert operation: compare and go left or right recursively.":
-    "Insert: compare करें और recursively बाएँ या दाएँ जाएँ।",
-  "Search operation follows the same comparison logic.":
-    "Search भी वही comparison logic follow करता है।",
-  "Delete has three cases — leaf, one child, two children.":
-    "Delete के तीन cases — leaf, एक child, दो children।",
-  "This might come in the exam — worst case height is O(n) for skewed trees.":
-    "यह exam में आ सकता है — skewed tree में worst case height O(n) है।",
-  "Balanced BSTs like AVL trees maintain O(log n) height.":
-    "AVL जैसे balanced BSTs O(log n) height maintain करते हैं।",
-  "Time complexity for search in balanced BST is O(log n).":
-    "Balanced BST में search की time complexity O(log n) है।",
-};
-
 function translate(text: string): string {
-  return HI[text] || `[HI] ${text}`;
+  return seedTranslateToHindi(text);
 }
 
 async function createLecture(

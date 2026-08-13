@@ -18,6 +18,10 @@
   ·
   <a href="docs/TECHNICAL_DOCUMENTATION.md">Full Documentation</a>
   ·
+  <a href="docs/AI_FEATURES.md">AI Features</a>
+  ·
+  <a href="docs/IBM_EVALUATION_QA.md">IBM Q&A</a>
+  ·
   <a href="#deployment">Deploy</a>
 </p>
 

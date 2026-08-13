@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { LANGUAGES, LANGUAGE_NAMES, LanguageCode } from "@/lib/constants";
+import { demoHindiForSegment } from "@/lib/demo-translations";
 import SpeakButton from "@/components/SpeakButton";
 
 export interface TranscriptSegment {
@@ -48,22 +49,40 @@ function languageLabel(code: string | null | undefined): string {
   return code.toUpperCase();
 }
 
-function parseTranslation(raw: string | null, fallbackLang?: string | null) {
+function parseTranslation(
+  raw: string | null,
+  fallbackLang?: string | null,
+  sourceText?: string
+) {
+  const demoHi = sourceText ? demoHindiForSegment(sourceText) : undefined;
+  if (demoHi) {
+    return { label: languageLabel("hi"), text: demoHi };
+  }
+
   if (!raw) {
     return { label: languageLabel(fallbackLang), text: "" };
   }
 
   const bracket = raw.match(/^\[([A-Za-z]{2})\]\s*([\s\S]*)$/);
   if (bracket) {
+    const body = bracket[2].trim();
+    if (sourceText && body === sourceText.trim()) {
+      return { label: languageLabel(bracket[1]), text: "" };
+    }
     return {
       label: languageLabel(bracket[1]),
-      text: bracket[2].trim(),
+      text: body,
     };
+  }
+
+  const text = raw.trim();
+  if (sourceText && text === sourceText.trim()) {
+    return { label: languageLabel(fallbackLang), text: "" };
   }
 
   return {
     label: languageLabel(fallbackLang),
-    text: raw.trim(),
+    text,
   };
 }
 
@@ -97,7 +116,11 @@ export default function TranscriptPanel({
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const stats = useMemo(() => {
-    const translated = segments.filter((s) => s.translatedText?.trim()).length;
+    const translated = segments.filter((s) => {
+      if (demoHindiForSegment(s.text)) return true;
+      const parsed = parseTranslation(s.translatedText, targetLanguage, s.text);
+      return Boolean(parsed.text);
+    }).length;
     const important = segments.filter((s) => s.isImportant).length;
     const totalMs =
       durationMs ??
@@ -107,7 +130,7 @@ export default function TranscriptPanel({
   }, [segments, durationMs]);
 
   const copySegment = async (segment: TranscriptSegment) => {
-    const parsed = parseTranslation(segment.translatedText, targetLanguage);
+    const parsed = parseTranslation(segment.translatedText, targetLanguage, segment.text);
     const body =
       view === "bilingual" && parsed.text
         ? `${segment.text}\n\n${parsed.label}: ${parsed.text}`
@@ -161,7 +184,7 @@ export default function TranscriptPanel({
       {/* Segment list */}
       <div className="transcript-scroll max-h-[520px] space-y-0 overflow-y-auto pr-1">
         {segments.map((segment, index) => {
-          const parsed = parseTranslation(segment.translatedText, targetLanguage);
+          const parsed = parseTranslation(segment.translatedText, targetLanguage, segment.text);
           const isLast = index === segments.length - 1;
 
           return (

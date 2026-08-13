@@ -377,27 +377,9 @@ flowchart LR
     style E fill:#dcfce7
 ```
 
-**[Full workflow charts →](docs/WORKFLOW.md)** (master diagram, live session sequence, AI vs code)
-
----
-
-For evaluation prep, architecture deep-dives, technology alternatives, and a full Q&A bank for judges:
-
-**[docs/TECHNICAL_DOCUMENTATION.md](docs/TECHNICAL_DOCUMENTATION.md)**
-
-Covers:
-- Every technology with alternatives and why we rejected them
-- System architecture and data model
-- Hybrid AI vs code rationale
-- 50+ likely evaluation questions with sample answers
-- 5-minute demo script for judges
-- Honest security limitations and future roadmap
-
----
-
-This project was built for educational and hackathon use. Adapt and extend as needed.
-
----
+BUILT BY TEAM RED SHARKS 
+ABHAY SINGH 
+DARSHAN GAIKWAD
 
 <p align="center">
   <sub>IntelliShala — making every lecture understandable, in every language.</sub>

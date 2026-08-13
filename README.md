@@ -22,6 +22,8 @@
   ·
   <a href="docs/IBM_EVALUATION_QA.md">IBM Q&A</a>
   ·
+  <a href="docs/HACKATHON_PPT.md">Hackathon PPT</a>
+  ·
   <a href="#deployment">Deploy</a>
 </p>
 
